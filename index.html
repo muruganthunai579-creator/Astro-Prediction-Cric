@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Astro Match Prediction</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root{
+      --bg:#020617;
+      --card:#0b1120;
+      --accent:#22c55e;
+      --accent-soft:rgba(34,197,94,0.15);
+      --border:#1f2937;
+      --text:#e5e7eb;
+      --text-soft:#9ca3af;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#1e293b 0,#020617 50%,#000 100%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+    .app{
+      width:100%;
+      max-width:900px;
+      padding:1.25rem 0.75rem 3rem;
+    }
+    header{
+      margin-bottom:1rem;
+    }
+    header h1{
+      margin:0;
+      font-size:1.4rem;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      display:flex;
+      align-items:center;
+      gap:0.4rem;
+    }
+    header span.tag{
+      font-size:0.65rem;
+      padding:0.1rem 0.4rem;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,0.5);
+      background:var(--accent-soft);
+      color:var(--accent);
+    }
+    header p{
+      margin:0.35rem 0 0;
+      font-size:0.8rem;
+      color:var(--text-soft);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+      gap:0.85rem;
+    }
+    @media (max-width:768px){
+      .grid{grid-template-columns:minmax(0,1fr);}
+    }
+    .card{
+      background:linear-gradient(135deg,#020617,#020617,#020617);
+      border-radius:0.9rem;
+      padding:0.9rem;
+      border:1px solid var(--border);
+      box-shadow:0 20px 45px rgba(15,23,42,0.9);
+    }
+    .card h2{
+      margin:0 0 0.5rem;
+      font-size:0.95rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .pill{
+      font-size:0.7rem;
+      padding:0.1rem 0.45rem;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--text-soft);
+    }
+    .section-title{
+      font-size:0.75rem;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      color:var(--text-soft);
+      margin:0.5rem 0 0.25rem;
+    }
+    .field-row{display:flex;gap:0.5rem;}
+    .field{flex:1;margin-bottom:0.5rem;}
+    label{
+      display:block;
+      font-size:0.75rem;
+      margin-bottom:0.15rem;
+      color:var(--text-soft);
+    }
+    input,select,textarea{
+      width:100%;
+      padding:0.42rem 0.55rem;
+      border-radius:0.55rem;
+      border:1px solid var(--border);
+      background:#020617;
+      color:var(--text);
+      font-size:0.8rem;
+      outline:none;
+      transition:border-color .15s,box-shadow .15s,background-color .15s;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(34,197,94,0.35);
+    }
+    input::placeholder{color:#4b5563;font-size:0.75rem;}
+    textarea{min-height:70px;resize:vertical;}
+    .btn-row{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.4rem;}
+    button{
+      border:none;
+      border-radius:999px;
+      padding:0.4rem 0.9rem;
+      font-size:0.8rem;
+      font-weight:500;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:0.3rem;
+      transition:transform .1s,box-shadow .1s,opacity .1s;
+    }
+    .btn-main{
+      background:var(--accent);
+      color:#022c22;
+      box-shadow:0 12px 30px rgba(34,197,94,0.4);
+    }
+    .btn-ghost{
+      background:#020617;
+      color:var(--text-soft);
+      border:1px solid var(--border);
+    }
+    button:active{transform:translateY(1px) scale(.99);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:0.55rem;
+      margin-top:0.5rem;
+    }
+    .kpi{
+      padding:0.55rem;
+      border-radius:0.7rem;
+      border:1px solid var(--border);
+      background:radial-gradient(circle at top left,#0f172a,#020617);
+    }
+    .k-label{font-size:0.7rem;color:var(--text-soft);}
+    .k-value{font-size:0.9rem;margin-top:0.1rem;}
+    .k-value.highlight{color:var(--accent);}
+    .badges{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem;}
+    .badge{
+      font-size:0.7rem;
+      padding:0.2rem 0.5rem;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.5);
+      color:var(--text-soft);
+    }
+    .badge.strong{
+      border-color:rgba(34,197,94,0.6);
+      background:var(--accent-soft);
+      color:var(--accent);
+    }
+    .log{
+      margin-top:0.45rem;
+      padding:0.5rem 0.6rem;
+      border-radius:0.6rem;
+      border:1px solid var(--border);
+      background:#020617;
+      font-family:ui-monospace,Menlo,Consolas,monospace;
+      font-size:0.7rem;
+      max-height:160px;
+      overflow-y:auto;
+      white-space:pre-wrap;
+    }
+    .small{font-size:0.7rem;color:var(--text-soft);margin-top:0.4rem;}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>
+        Astro Prediction
+        <span class="tag">Panchapakshi · Numerology · Jersey · Time</span>
+      </h1>
+      <p>Match details, DOB, ruling bird, jersey colours — ellame online-la change pannitu result paakalam.</p>
+    </header>
+
+    <div class="grid">
+      <!-- INPUT CARD -->
+      <section class="card">
+        <h2>
+          Match Inputs
+          <span class="pill">Step 1 · Fill details</span>
+        </h2>
+
+        <p class="section-title">Match &amp; Location</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="matchDate">Match date</label>
+            <input id="matchDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="matchTime">Match time</label>
+            <input id="matchTime" type="time" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="location">Stadium / city</label>
+            <input id="location" type="text" placeholder="Chennai, Mumbai, London…" />
+          </div>
+          <div class="field">
+            <label for="tz">Country time (UTC offset)</label>
+            <input id="tz" type="text" placeholder="+05:30, +01:00, -03:00…" />
+          </div>
+        </div>
+
+        <p class="section-title">Teams &amp; Jersey</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="teamA">Team A</label>
+            <input id="teamA" type="text" placeholder="Home team" />
+          </div>
+          <div class="field">
+            <label for="teamB">Team B</label>
+            <input id="teamB" type="text" placeholder="Away team" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="jerseyA">Team A jersey colour</label>
+            <input id="jerseyA" type="text" placeholder="Red / Blue / Yellow…" />
+          </div>
+          <div class="field">
+            <label for="jerseyB">Team B jersey colour</label>
+            <input id="jerseyB" type="text" placeholder="Green / White…" />
+          </div>
+        </div>
+
+        <p class="section-title">DOB &amp; Ruling Bird</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="dob">DOB</label>
+            <input id="dob" type="date" />
+          </div>
+          <div class="field">
+            <label for="tob">Time of birth</label>
+            <input id="tob" type="time" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="bird">Ruling bird (if known)</label>
+            <select id="bird">
+              <option value="">Auto (placeholder)</option>
+              <option>Vulture</option>
+              <option>Owl</option>
+              <option>Crow</option>
+              <option>Cock</option>
+              <option>Peacock</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="notes">Extra notes</label>
+            <input id="notes" type="text" placeholder="League / knockout / special info…" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-main" id="btnRun">⚡ Run prediction</button>
+          <button class="btn-ghost" id="btnReset">♻ Reset</button>
+        </div>
+      </section>
+
+      <!-- OUTPUT CARD -->
+      <section class="card">
+        <h2>
+          Result
+          <span class="pill">Step 2 · Engine output</span>
+        </h2>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="k-label">Match local time</div>
+            <div id="kLocal" class="k-value">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k-label">Day &amp; planet</div>
+            <div id="kDay" class="k-value">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k-label">Ruling bird</div>
+            <div id="kBird" class="k-value highlight">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k-label">Nakshatra (approx)</div>
+            <div id="kNak" class="k-value">—</div>
+          </div>
+        </div>
+
+        <p class="section-title" style="margin-top:0.7rem;">Summary</p>
+        <div class="badges" id="badgeBox">
+          <span class="badge">Engine idle</span>
+        </div>
+
+        <p class="section-title" style="margin-top:0.7rem;">Detailed flow</p>
+        <div class="log" id="logBox">
+          Fill inputs and press “Run prediction”.
+        </div>
+
+        <div class="small">
+          Note: Logic is simple placeholder only.  
+          Neenga un real 32-method astro engine later JS-la replace pannalaam.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    function parseOffset(str){
+      if(!str) return null;
+      const m=str.match(/^([+-])(\\d{2}):(\\d{2})$/);
+      if(!m) return null;
+      const sign=m[1]==="-"?-1:1;
+      const h=Number(m[2])||0;
+      const min=Number(m[3])||0;
+      return sign*(h*60+min);
+    }
+
+    function weekdayPlanet(d){
+      const names=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const planets=["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+      const i=d.getUTCDay();
+      return names[i]+" · "+planets[i];
+    }
+
+    function fakeNakshatra(dob,tob){
+      if(!dob) return null;
+      const seed=Date.parse(dob+"T"+(tob||"00:00"))||Date.now();
+      const list=[
+        "Ashwini","Bharani","Krittika","Rohini","Mrigashirsha","Ardra","Punarvasu",
+        "Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra",
+        "Swati","Vishakha","Anuradha","Jyeshta","Mula","Purva Ashadha","Uttara Ashadha",
+        "Shravana","Dhanishta","Shatabhisha","Purva Bhadra","Uttara Bhadra","Revati"
+      ];
+      return list[Math.abs(seed)%list.length];
+    }
+
+    function autoBird(dob,tob){
+      if(!dob) return null;
+      const birds=["Vulture","Owl","Crow","Cock","Peacock"];
+      const seed=Date.parse(dob+"T"+(tob||"00:00"))||Date.now();
+      return birds[Math.abs(seed)%birds.length];
+    }
+
+    function runPrediction(){
+      const date=document.getElementById("matchDate").value;
+      const time=document.getElementById("matchTime").value;
+      const tz=document.getElementById("tz").value.trim();
+      const teamA=document.getElementById("teamA").value.trim()||"Team A";
+      const teamB=document.getElementById("teamB").value.trim()||"Team B";
+      const jerseyA=document.getElementById("jerseyA").value.trim();
+      const jerseyB=document.getElementById("jerseyB").value.trim();
+      const dob=document.getElementById("dob").value;
+      const tob=document.getElementById("tob").value;
+      const manualBird=document.getElementById("bird").value;
+      const notes=document.getElementById("notes").value.trim();
+
+      const log=[];
+      const badges=[];
+      let local=null;
+
+      if(date && time){
+        const base=Date.parse(date+"T"+time);
+        const offMins=parseOffset(tz);
+        if(!Number.isNaN(base)){
+          if(offMins!=null) local=new Date(base+offMins*60000);
+          else local=new Date(base);
+        }
+      }
+
+      if(local){
+        document.getElementById("kLocal").textContent = local.toLocaleString();
+        const dp=weekdayPlanet(local);
+        document.getElementById("kDay").textContent = dp;
+        log.push("Match local time: "+local.toLocaleString());
+        log.push("Day & planet: "+dp);
+      }else{
+        document.getElementById("kLocal").textContent="—";
+        document.getElementById("kDay").textContent="—";
+        log.push("Match time missing or invalid.");
+      }
+
+      const nak=fakeNakshatra(dob,tob);
+      if(nak){
+        document.getElementById("kNak").textContent=nak;
+        log.push("DOB → Nakshatra (approx): "+nak);
+      }else{
+        document.getElementById("kNak").textContent="—";
+      }
+
+      let bird=manualBird||autoBird(dob,tob);
+      document.getElementById("kBird").textContent=bird||"—";
+      log.push("Ruling bird (placeholder): "+(bird||"NA"));
+
+      // VERY SIMPLE DUMMY ASTRO LOGIC (replace later)
+      let scoreA=0,scoreB=0;
+
+      if(bird==="Peacock"||bird==="Cock") scoreA+=2; // attack favours A
+      if(bird==="Owl"||bird==="Crow") scoreB+=2;
+
+      const warmColours=["red","orange","yellow","gold","maroon"];
+      const coolColours=["blue","green","black","white","purple"];
+
+      if(jerseyA && warmColours.some(c=>jerseyA.toLowerCase().includes(c))) scoreA++;
+      if(jerseyB && warmColours.some(c=>jerseyB.toLowerCase().includes(c))) scoreB++;
+      if(jerseyA && coolColours.some(c=>jerseyA.toLowerCase().includes(c))) scoreB++;
+      if(jerseyB && coolColours.some(c=>jerseyB.toLowerCase().includes(c))) scoreA++;
+
+      const fav = scoreA>scoreB ? teamA :
+                  scoreB>scoreA ? teamB : "Tight / draw side";
+
+      badges.push("Favoured side (dummy): "+fav);
+      badges.push("Score A: "+scoreA+" · Score B: "+scoreB);
+      badges.push("Bird focus: "+(bird||"NA"));
+
+      const badgeBox=document.getElementById("badgeBox");
+      badgeBox.innerHTML="";
+      badges.forEach(t=>{
+        const span=document.createElement("span");
+        span.className="badge strong";
+        span.textContent=t;
+        badgeBox.appendChild(span);
+      });
+
+      if(notes) log.push("Notes: "+notes);
+      log.push("");
+      log.push("NOTE: This is only a SAMPLE logic.");
+      log.push("Namma real 32-method Panchapakshi + Numerology + Jersey + GoalTime engine later replace panna porom.");
+
+      document.getElementById("logBox").textContent=log.join("\\n");
+    }
+
+    document.getElementById("btnRun").addEventListener("click",e=>{
+      e.preventDefault();
+      runPrediction();
+    });
+
+    document.getElementById("btnReset").addEventListener("click",e=>{
+      e.preventDefault();
+      document.querySelectorAll("input,select").forEach(el=>el.value="");
+      document.getElementById("kLocal").textContent="—";
+      document.getElementById("kDay").textContent="—";
+      document.getElementById("kBird").textContent="—";
+      document.getElementById("kNak").textContent="—";
+      document.getElementById("badgeBox").innerHTML='<span class="badge">Engine idle</span>';
+      document.getElementById("logBox").textContent="Fill inputs and press “Run prediction”.";
+    });
+  </script>
+</body>
+</html>
