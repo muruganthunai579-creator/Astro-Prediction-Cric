@@ -2,181 +2,188 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Astro Football – Panchapakshi Predictor</title>
+  <title>Astro Football • Panchapakshi</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
-    :root {
+    :root{
       --home-main:#0ea5e9;
       --away-main:#22c55e;
-      --bg:#020617;
-      --card:#020b1d;
     }
-    *{box-sizing:border-box;}
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+
     body{
-      margin:0;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:radial-gradient(circle at top,#0f172a,#020617 60%);
-      color:#e5e7eb;
+      background:#ffffff;
+      color:#111827;
+      line-height:1.5;
     }
-    .wrap{max-width:960px;margin:0 auto;padding:12px;}
-    h1{
-      font-size:16px;
-      letter-spacing:.28em;
-      text-transform:uppercase;
-      color:#9ca3af;
-      margin:6px 0 10px;
-      text-align:center;
-    }
-    .card{
-      background:linear-gradient(145deg,#02081a,#020617);
-      border-radius:18px;
-      border:1px solid rgba(148,163,184,.25);
+
+    .wrap{
+      max-width:960px;
+      margin:0 auto;
       padding:12px;
-      margin-bottom:12px;
-      box-shadow:0 24px 60px rgba(15,23,42,.7);
     }
-    .card-title{
-      font-size:12px;
+
+    h1{
+      font-size:18px;
+      letter-spacing:0.18em;
       text-transform:uppercase;
-      letter-spacing:.2em;
-      color:#9ca3af;
-      margin-bottom:6px;
+      color:#4b5563;
+      margin-bottom:4px;
     }
+
+    h2{
+      font-size:12px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:#6b7280;
+      margin-bottom:8px;
+    }
+
+    .card{
+      background:#f9fafb;
+      border-radius:16px;
+      border:1px solid #e5e7eb;
+      padding:12px;
+      margin-top:10px;
+      box-shadow:0 10px 25px rgba(15,23,42,0.03);
+    }
+
     label{
       display:block;
       font-size:10px;
       text-transform:uppercase;
-      letter-spacing:.16em;
-      color:#6b7280;
-      margin-bottom:2px;
+      letter-spacing:0.18em;
+      color:#9ca3af;
+      margin-bottom:3px;
     }
+
     input,select{
       width:100%;
+      padding:8px 10px;
       border-radius:10px;
-      border:1px solid #1f2937;
-      background:#020617;
-      color:#e5e7eb;
+      border:1px solid #d1d5db;
       font-size:13px;
-      padding:7px 10px;
+      background:#ffffff;
+      color:#111827;
       margin-bottom:8px;
     }
+
+    input:disabled{
+      background:#f3f4f6;
+      color:#6b7280;
+    }
+
     input:focus,select:focus{
       outline:none;
-      border-color:#38bdf8;
-      box-shadow:0 0 0 1px #38bdf8;
+      border-color:#0ea5e9;
+      box-shadow:0 0 0 1px #0ea5e9;
     }
+
     button{
-      width:100%;
+      padding:9px 12px;
       border:none;
       border-radius:999px;
-      padding:9px;
       font-size:11px;
       font-weight:600;
+      letter-spacing:0.18em;
       text-transform:uppercase;
-      letter-spacing:.18em;
-      color:white;
       cursor:pointer;
-      margin-top:2px;
+      color:#ffffff;
+      width:100%;
+      margin-top:4px;
     }
-    .btn-main{
-      background:linear-gradient(90deg,#22c55e,#14b8a6);
-      box-shadow:0 8px 20px rgba(34,197,94,.45);
+
+    .btn-primary{
+      background:linear-gradient(90deg,#0ea5e9,#6366f1);
+      box-shadow:0 8px 18px rgba(59,130,246,0.35);
     }
     .btn-secondary{
-      background:linear-gradient(90deg,#38bdf8,#6366f1);
-      box-shadow:0 8px 20px rgba(56,189,248,.45);
+      background:linear-gradient(90deg,#22c55e,#16a34a);
+      box-shadow:0 8px 18px rgba(34,197,94,0.35);
     }
-    .btn-small{
-      padding:6px 10px;
-      width:auto;
-      font-size:10px;
+    .btn-ghost{
+      background:#e5e7eb;
+      color:#111827;
+      box-shadow:none;
     }
     button:active{transform:scale(.97);}
-    .row{display:flex;gap:8px;flex-wrap:wrap;}
-    .row>div{flex:1;min-width:0;}
+
+    .row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .row>div{
+      flex:1;
+      min-width:140px;
+    }
+
     .tiny{
       font-size:11px;
-      color:#9ca3af;
-      margin-top:4px;
-      line-height:1.5;
+      color:#6b7280;
+      margin-top:6px;
     }
+
     table{
       width:100%;
       border-collapse:collapse;
       font-size:11px;
-      margin-top:4px;
+      margin-top:8px;
     }
     th,td{
-      border:1px solid #111827;
-      padding:4px 5px;
+      border:1px solid #e5e7eb;
+      padding:4px 6px;
       text-align:left;
     }
     th{
-      background:#020617;
-      color:#9ca3af;
+      background:#eff6ff;
       text-transform:uppercase;
-      letter-spacing:.12em;
-      font-size:9px;
+      letter-spacing:0.08em;
+      font-size:10px;
+      color:#374151;
     }
-    tr:nth-child(even){background:#020617;}
-    tr:nth-child(odd){background:#02081a;}
-    tr:hover{background:#0f172a;cursor:pointer;}
+    tr:nth-child(even){background:#ffffff;}
+    tr:nth-child(odd){background:#f9fafb;}
+    tr:hover{background:#e0f2fe;cursor:pointer;}
+
     .tag{
       display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
       font-size:10px;
       text-transform:uppercase;
-      letter-spacing:.12em;
-      font-weight:600;
+      letter-spacing:0.14em;
+      padding:2px 8px;
+      border-radius:999px;
       margin-right:4px;
+      margin-top:4px;
     }
-    .tag-api{background:#022c22;color:#4ade80;}
-    .tag-day{background:#082f49;color:#38bdf8;}
-    .tag-overall{background:#422006;color:#facc15;}
-    .team-home{color:var(--home-main);font-weight:600;}
-    .team-away{color:var(--away-main);font-weight:600;}
+    .tag-info{background:#dbeafe;color:#1d4ed8;}
+    .tag-good{background:#bbf7d0;color:#166534;}
+    .tag-bad{background:#fee2e2;color:#b91c1c;}
+    .tag-neutral{background:#fef3c7;color:#92400e;}
 
-    .bar-wrap{
-      width:100%;
-      height:14px;
-      border-radius:999px;
-      overflow:hidden;
-      border:1px solid #1f2937;
-      background:#020617;
-      margin:6px 0 4px 0;
-      position:relative;
-      display:flex;
+    .home-text{color:var(--home-main);font-weight:600;}
+    .away-text{color:var(--away-main);font-weight:600;}
+    .winner-text{color:#16a34a;font-weight:700;}
+    .draw-text{color:#ea580c;font-weight:700;}
+
+    .error{
+      font-size:11px;
+      color:#b91c1c;
+      margin-top:4px;
     }
-    .bar-fill-home{
-      background:linear-gradient(90deg,var(--home-main),#38bdf8);
-      height:100%;
+
+    .section-title{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      color:#6b7280;
+      margin-bottom:6px;
     }
-    .bar-fill-away{
-      background:linear-gradient(90deg,var(--away-main),#22c55e);
-      height:100%;
-    }
-    .bar-label{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      font-size:10px;
-      font-weight:600;
-      white-space:nowrap;
-      text-shadow:0 1px 2px rgba(0,0,0,.7);
-    }
-    .excellent{color:#4ade80;font-weight:700;}
-    .weak{color:#f97316;font-weight:600;}
-    .danger{color:#f97316;}
-    .good{color:#22c55e;}
-    .draw{color:#e5e7eb;font-weight:600;}
-    .badge{
-      display:inline-block;
-      padding:2px 7px;
-      border-radius:999px;
-      font-size:10px;
-      border:1px solid #1f2937;
+
+    @media (max-width:600px){
+      h1{font-size:15px;}
     }
   </style>
 </head>
@@ -184,243 +191,214 @@
 <div class="wrap">
   <h1>ASTRO FOOTBALL • PANCHAPAKSHI</h1>
 
-  <!-- API: LIVE / UPCOMING MATCHES -->
+  <!-- STEP 1: LOAD MATCHES FROM API-FOOTBALL -->
   <div class="card">
-    <div class="card-title">Step 1 · Load Football Matches (API-FOOTBALL)</div>
+    <h2>Step 1 · Load Football Matches (API-Football)</h2>
+
     <div class="row">
       <div>
-        <label>API Key (api-football.com)</label>
+        <label>API key (api-football.com)</label>
         <input id="apiKey" placeholder="Paste your API key here" />
       </div>
       <div>
         <label>Matches</label>
-        <select id="apiFilter">
-          <option value="live" selected>Live</option>
-          <option value="next">Upcoming</option>
+        <select id="matchFilter">
+          <option value="today">Today · Live & Upcoming</option>
+          <option value="tomorrow">Tomorrow</option>
+          <option value="week">Next 7 days</option>
         </select>
       </div>
-      <div style="align-self:flex-end;flex:0 0 auto;">
-        <button class="btn-secondary btn-small" onclick="loadMatches()">Load</button>
+      <div style="flex-basis:130px;max-width:160px;">
+        <label>&nbsp;</label>
+        <button class="btn-primary" onclick="loadMatches()">Load</button>
       </div>
     </div>
+
     <div class="tiny">
-      <span class="tag tag-api">Info</span>
-      Your API key is visible in the browser. Use only for your own predictions.
-      Click a row below to send the match into the Panchapakshi engine.
+      Your API key is used only in your browser. Do not share screenshots when the key is visible.
+      Click a match row below to send it into the Panchapakshi engine.
     </div>
-    <table id="matchTable" style="margin-top:6px;display:none;">
+    <div id="apiMessage" class="tiny"></div>
+
+    <table id="matchesTable" style="display:none;">
       <thead>
-      <tr>
-        <th>Kickoff (Local)</th>
-        <th>Home</th>
-        <th>Away</th>
-        <th>League</th>
-        <th>Country</th>
-      </tr>
+        <tr>
+          <th>Kickoff</th>
+          <th>Home</th>
+          <th>Away</th>
+          <th>League</th>
+          <th>City / Country</th>
+          <th>Status</th>
+        </tr>
       </thead>
-      <tbody id="matchTbody"></tbody>
+      <tbody id="matchesBody"></tbody>
     </table>
-    <div id="apiStatus" class="tiny"></div>
   </div>
 
-  <!-- MATCH INPUT -->
+  <!-- STEP 2: MATCH INPUT -->
   <div class="card">
-    <div class="card-title">Step 2 · Match Input (auto-filled from API or manual)</div>
+    <h2>Step 2 · Match Input (Auto from API or Manual)</h2>
+
     <div class="row">
       <div>
-        <label>Home Team</label>
-        <input id="homeTeam" placeholder="Home team name" oninput="applyTeamThemes()" />
+        <label>Home team</label>
+        <input id="homeTeam" placeholder="Home team name" />
       </div>
       <div>
-        <label>Away Team</label>
-        <input id="awayTeam" placeholder="Away team name" oninput="applyTeamThemes()" />
+        <label>Away team</label>
+        <input id="awayTeam" placeholder="Away team name" />
       </div>
     </div>
 
     <div class="row">
       <div>
-        <label>Kickoff Date (venue)</label>
-        <input id="matchDate" type="date" />
+        <label>Kickoff date (venue)</label>
+        <input id="kickoffDate" type="date" />
       </div>
       <div>
-        <label>Kickoff Time (venue)</label>
+        <label>Kickoff time (venue)</label>
         <input id="kickoffTime" type="time" />
       </div>
       <div>
-        <label>Venue Timezone (from API)</label>
+        <label>Venue timezone (from API)</label>
         <input id="venueTz" placeholder="Ex: Europe/London" />
       </div>
     </div>
 
     <div class="row">
       <div>
-        <label>League / Competition</label>
-        <input id="leagueName" placeholder="Ex: Premier League" />
-      </div>
-      <div>
         <label>City / Country</label>
-        <input id="locationName" placeholder="Ex: Liverpool, England" />
+        <input id="cityCountry" placeholder="Ex: Liverpool, England" />
       </div>
-    </div>
-
-    <div class="row">
       <div>
         <label>Paksha (auto from date)</label>
-        <select id="paksha" onchange="updateDayBird()">
+        <select id="paksha">
           <option value="shukla">Shukla</option>
           <option value="krishna">Krishna</option>
         </select>
       </div>
+    </div>
+
+    <div class="row">
       <div>
-        <label>Home Team Bird</label>
-        <select id="homeBird">
-          <option value="">Select bird</option>
-          <option>Vulture</option>
-          <option>Owl</option>
-          <option>Crow</option>
-          <option>Cock</option>
-          <option>Peacock</option>
-        </select>
+        <label>Home team bird (auto · 27 nakshatra)</label>
+        <input id="homeBird" disabled />
       </div>
       <div>
-        <label>Away Team Bird</label>
-        <select id="awayBird">
-          <option value="">Select bird</option>
-          <option>Vulture</option>
-          <option>Owl</option>
-          <option>Crow</option>
-          <option>Cock</option>
-          <option>Peacock</option>
-        </select>
+        <label>Away team bird (auto · 27 nakshatra)</label>
+        <input id="awayBird" disabled />
       </div>
     </div>
 
     <div class="row">
       <div>
         <label>&nbsp;</label>
-        <button class="btn-secondary" onclick="autoBirdsFromJersey()">Auto birds from jersey / club</button>
+        <button class="btn-ghost" onclick="autoFromNames()">Auto birds from team names</button>
       </div>
       <div>
         <label>&nbsp;</label>
-        <button class="btn-main" onclick="runPrediction()">Run Panchapakshi Prediction</button>
+        <button class="btn-secondary" onclick="runPrediction()">Run Panchapakshi Prediction</button>
       </div>
     </div>
 
-    <div id="dayBirdInfo" class="tiny"></div>
-    <!-- jersey line hidden as you asked -->
-    <div id="jerseyInfo" class="tiny" style="display:none;"></div>
+    <div id="dayInfo" class="tiny"></div>
   </div>
 
-  <!-- RESULT -->
+  <!-- STEP 3: RESULT -->
   <div id="resultCard" class="card" style="display:none;">
-    <div class="card-title">Step 3 · Astro Result</div>
-    <div id="winnerLine" class="tiny"></div>
-    <div id="probBar"></div>
-    <div id="drawLine" class="tiny"></div>
-    <div id="extraLine" class="tiny"></div>
+    <h2>Step 3 · Panchapakshi Result</h2>
+
+    <div id="resultSummary" class="tiny"></div>
+    <div id="resultDetails" class="tiny" style="margin-top:6px;"></div>
   </div>
 </div>
 
 <script>
-/* ----------------- PANCHAPAKSHI TABLES ----------------- */
+/* -------------------- CORE TABLES -------------------- */
+
 const BIRD_PLANETS = {
   shukla: {
-    Vulture:['Jupiter','Saturn'],
-    Owl:['Sun','Venus'],
-    Crow:['Moon'],
-    Cock:['Mars'],
-    Peacock:['Mercury']
+    Vulture: ['Jupiter','Saturn'],
+    Owl:     ['Sun','Venus'],
+    Crow:    ['Moon'],
+    Cock:    ['Mars'],
+    Peacock: ['Mercury']
   },
   krishna: {
-    Vulture:['Mars'],
-    Owl:['Moon'],
-    Crow:['Sun'],
-    Cock:['Jupiter','Saturn'],
-    Peacock:['Mercury','Venus']
+    Vulture: ['Mars'],
+    Owl:     ['Moon'],
+    Crow:    ['Sun'],
+    Cock:    ['Jupiter','Saturn'],
+    Peacock: ['Mercury','Venus']
   }
 };
-const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
+
 const DAY_PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
 
+const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
+
 const FRIENDLY_BIRDS = {
-  Vulture:['Owl','Cock'],
-  Owl:['Vulture','Peacock'],
-  Crow:['Peacock','Cock'],
-  Cock:['Vulture','Crow'],
-  Peacock:['Owl','Crow']
+  Vulture: ['Owl','Cock'],
+  Owl:     ['Vulture','Peacock'],
+  Crow:    ['Peacock','Cock'],
+  Cock:    ['Vulture','Crow'],
+  Peacock: ['Owl','Crow']
 };
 const UNFRIENDLY_BIRDS = {
-  Vulture:['Peacock','Crow'],
-  Owl:['Crow','Cock'],
-  Crow:['Vulture','Owl'],
-  Cock:['Peacock','Owl'],
-  Peacock:['Vulture','Cock']
+  Vulture: ['Peacock','Crow'],
+  Owl:     ['Crow','Cock'],
+  Crow:    ['Vulture','Owl'],
+  Cock:    ['Peacock','Owl'],
+  Peacock: ['Vulture','Cock']
 };
 
-/* Some common football jersey themes (with birds) */
-const TEAM_COLOR_RULES = [
-  { pattern:/liverpool/i,  bird:'Cock',   color:'#e11d48', label:'Red' },
-  { pattern:/manchester city|man city|mancity/i, bird:'Peacock', color:'#38bdf8', label:'Sky Blue' },
-  { pattern:/chelsea/i,    bird:'Owl',    color:'#1d4ed8', label:'Blue' },
-  { pattern:/arsenal/i,    bird:'Cock',   color:'#dc2626', label:'Red / White' },
-  { pattern:/tottenham|spurs/i, bird:'Vulture', color:'#e5e7eb', label:'White / Navy' },
-  { pattern:/real madrid/i,bird:'Vulture',color:'#e5e7eb',label:'White' },
-  { pattern:/barcelona|barca/i,bird:'Crow',color:'#7c2d12',label:'Maroon / Blue' },
-  { pattern:/psg|paris saint/i,bird:'Peacock',color:'#1e3a8a',label:'Navy' },
-  { pattern:/juventus|juve/i,bird:'Vulture',color:'#111827',label:'Black / White' },
-  { pattern:/milan|ac milan/i,bird:'Cock',color:'#b91c1c',label:'Red / Black' },
-  { pattern:/inter/i,bird:'Peacock',color:'#1d4ed8',label:'Blue / Black' },
-  { pattern:/bayern|munich/i,bird:'Cock',color:'#dc2626',label:'Red' },
-  { pattern:/india/i,bird:'Peacock',color:'#2563eb',label:'Blue' },
-  { pattern:/england/i,bird:'Vulture',color:'#e5e7eb',label:'White' },
-  { pattern:/brazil/i,bird:'Peacock',color:'#eab308',label:'Yellow / Green' },
-  { pattern:/argentina/i,bird:'Peacock',color:'#38bdf8',label:'Sky Blue / White' }
+/* 27 nakshatra → birds, used also for team name numerology */
+const PLAYER_NAK_BIRDS = [
+  'Peacock','Peacock','Peacock','Peacock','Peacock',
+  'Cock','Cock','Cock','Cock','Cock','Cock',
+  'Crow','Crow','Crow','Crow','Crow',
+  'Owl','Owl','Owl','Owl','Owl',
+  'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture'
 ];
 
-function deriveRulingBirds(paksha){
-  const map=BIRD_PLANETS[paksha];
-  const arr=[];
-  for(let d=0;d<7;d++){
-    const planet=DAY_PLANETS[d];
-    let chosen='Vulture';
-    for(const b of BIRDS){
-      if((map[b]||[]).includes(planet)){chosen=b;break;}
-    }
-    arr.push(chosen);
-  }
-  return arr;
-}
-const RULING_BIRDS = {
-  shukla:deriveRulingBirds('shukla'),
-  krishna:deriveRulingBirds('krishna')
+/* Panchapakshi activity order + scoring */
+const APAHARA_DURATIONS={Rule:48,Eat:30,Walk:36,Sleep:18,Die:12};
+const ACTIVITY_STRENGTH={Rule:{score:300},Eat:{score:220},Walk:{score:160},Sleep:{score:90},Die:{score:40}};
+const ACTIVITY_CYCLES={
+  shukla_day:['Eat','Walk','Rule','Sleep','Die'],
+  shukla_night:['Eat','Rule','Die','Walk','Sleep'],
+  krishna_day:['Eat','Die','Sleep','Rule','Walk'],
+  krishna_night:['Eat','Sleep','Walk','Die','Rule']
 };
 
-/* ----------------- BASIC HELPERS ----------------- */
-function detectTeamTheme(name,fallbackColor){
-  if(!name) return {color:fallbackColor,label:'Default'};
-  for(const rule of TEAM_COLOR_RULES){
-    if(rule.pattern.test(name)) return {color:rule.color,label:rule.label||'Jersey',bird:rule.bird};
-  }
-  return {color:fallbackColor,label:'Default'};
+/* -------------------- SMALL HELPERS -------------------- */
+
+function formatDateISO(d){
+  const y=d.getFullYear();
+  const m=(d.getMonth()+1).toString().padStart(2,'0');
+  const day=d.getDate().toString().padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function addDays(d,n){
+  const x=new Date(d);
+  x.setDate(x.getDate()+n);
+  return x;
+}
+function timeToMins(t){
+  if(!t) return 0;
+  const [h,m]=t.split(':').map(Number);
+  return h*60+m;
+}
+function minsToTime(m){
+  let x=m;
+  while(x<0)x+=1440;
+  x=x%1440;
+  const h=Math.floor(x/60);
+  const mm=x%60;
+  return h.toString().padStart(2,'0')+":"+mm.toString().padStart(2,'0');
 }
 
-function applyTeamThemes(){
-  const home=document.getElementById('homeTeam').value.trim();
-  const away=document.getElementById('awayTeam').value.trim();
-  const homeBirdSel=document.getElementById('homeBird');
-  const awayBirdSel=document.getElementById('awayBird');
-
-  const homeTheme=detectTeamTheme(home,'#0ea5e9');
-  const awayTheme=detectTeamTheme(away,'#22c55e');
-  document.documentElement.style.setProperty('--home-main',homeTheme.color);
-  document.documentElement.style.setProperty('--away-main',awayTheme.color);
-
-  // auto birds from known clubs
-  if(homeTheme.bird && !homeBirdSel.value) homeBirdSel.value=homeTheme.bird;
-  if(awayTheme.bird && !awayBirdSel.value) awayBirdSel.value=awayTheme.bird;
-}
-
-/* moon age → auto paksha from date */
+/* Moon age → Shukla / Krishna (simple rough algo) */
 function computeMoonAge(date){
   const year=date.getUTCFullYear();
   const month=date.getUTCMonth()+1;
@@ -436,224 +414,414 @@ function computeMoonAge(date){
   const frac = ip - Math.floor(ip);
   return frac*29.530588853;
 }
-function autoSetPakshaFromDate(){
-  const dateStr=document.getElementById('matchDate').value;
-  if(!dateStr) return;
-  const d=new Date(dateStr+'T12:00:00');
+function autoPakshaFromDate(dateStr){
+  if(!dateStr) return 'shukla';
+  const d=new Date(dateStr+"T12:00:00Z");
   const age=computeMoonAge(d);
-  const paksha=age<14.765?'shukla':'krishna';
-  document.getElementById('paksha').value=paksha;
+  return age < 14.765 ? 'shukla' : 'krishna';
 }
 
-function updateDayBird(){
-  const dateStr=document.getElementById('matchDate').value;
-  const paksha=document.getElementById('paksha').value;
-  const el=document.getElementById('dayBirdInfo');
-  if(!dateStr){
-    el.innerHTML='Select match date to view ruling bird.';
-    return;
+/* Ruling birds per week day & paksha */
+function deriveRulingBirds(paksha){
+  const map=BIRD_PLANETS[paksha];
+  const arr=[];
+  for(let d=0;d<7;d++){
+    const planet=DAY_PLANETS[d];
+    let chosen='Vulture';
+    for(const bird of BIRDS){
+      const list=map[bird]||[];
+      if(list.includes(planet)){chosen=bird;break;}
+    }
+    arr.push(chosen);
   }
-  const d=new Date(dateStr+'T12:00:00');
-  const idx=d.getDay();
-  const ruling=RULING_BIRDS[paksha][idx];
-  const friendly=FRIENDLY_BIRDS[ruling]||[];
-  const enemy=UNFRIENDLY_BIRDS[ruling]||[];
-  el.innerHTML =
-    `<span class="tag tag-day">Day Bird</span>`+
-    `Ruling bird: <span class="excellent">${ruling}</span> • `+
-    `Friendly: <span class="good">${friendly.join(', ')||'-'}</span> • `+
-    `Enemy: <span class="danger">${enemy.join(', ')||'-'}</span>`;
+  return arr;
 }
+const RULING_BIRDS = {
+  shukla: deriveRulingBirds('shukla'),
+  krishna: deriveRulingBirds('krishna')
+};
 
-/* auto birds from jersey button */
-function autoBirdsFromJersey(){
-  applyTeamThemes();
-}
+/* Panchapakshi engine: activity at a given time */
+function getMainYamaContext(bird,timeMins,dayIdx,pakshaType){
+  const dayStart=360, nightStart=1080, yamaDuration=144;
+  let isNight=false, minsSinceStart=0, cycleStartMins=dayStart;
+  let t=timeMins;
+  if(t<dayStart)t+=1440;
 
-/* ----------------- SIMPLE PANCHAPAKSHI LOGIC (TEAM ONLY) ----------------- */
-function scoreBirdVsDay(teamBird,rulingBird,paksha){
-  if(!teamBird) return 0;
-  let score=0;
-  if(teamBird===rulingBird) score+=60;
-  const friendly=(FRIENDLY_BIRDS[rulingBird]||[]);
-  const enemy=(UNFRIENDLY_BIRDS[rulingBird]||[]);
-  if(friendly.includes(teamBird)) score+=30;
-  if(enemy.includes(teamBird)) score-=40;
-
-  // small paksha flavour
-  if(paksha==='shukla' && (teamBird==='Peacock'||teamBird==='Owl')) score+=10;
-  if(paksha==='krishna' && (teamBird==='Vulture'||teamBird==='Crow')) score+=10;
-  return score;
-}
-
-function runPrediction(){
-  const home=document.getElementById('homeTeam').value.trim() || 'Home Team';
-  const away=document.getElementById('awayTeam').value.trim() || 'Away Team';
-  const dateStr=document.getElementById('matchDate').value;
-  const paksha=document.getElementById('paksha').value;
-  const homeBird=document.getElementById('homeBird').value;
-  const awayBird=document.getElementById('awayBird').value;
-
-  if(!dateStr){alert('Please select match date.');return;}
-  if(!homeBird || !awayBird){
-    alert('Please select both team birds (auto from jersey is also available).');
-    return;
+  if(t>=dayStart && t<nightStart){
+    isNight=false;
+    minsSinceStart=t-dayStart;
+    cycleStartMins=dayStart;
+  }else{
+    isNight=true;
+    if(t>=nightStart){
+      minsSinceStart=t-nightStart;
+      cycleStartMins=nightStart;
+    }else{
+      minsSinceStart=(t+1440)-nightStart;
+      cycleStartMins=nightStart;
+    }
   }
 
-  const d=new Date(dateStr+'T12:00:00');
-  const dayIdx=d.getDay();
-  const ruling=RULING_BIRDS[paksha][dayIdx];
+  const yamaIndex=Math.floor(minsSinceStart/yamaDuration);
+  const clamped=Math.min(yamaIndex,4);
+  const key=pakshaType+'_'+(isNight?'night':'day');
+  const cycle=ACTIVITY_CYCLES[key];
+  const ruling=RULING_BIRDS[pakshaType][dayIdx];
 
-  const sHome=scoreBirdVsDay(homeBird,ruling,paksha);
-  const sAway=scoreBirdVsDay(awayBird,ruling,paksha);
-
-  let adjHome = Math.max(sHome,0);
-  let adjAway = Math.max(sAway,0);
-  if(adjHome===0 && adjAway===0){adjHome=1;adjAway=1;}
-
-  const total=adjHome+adjAway;
-  let pHome=(adjHome/total)*100;
-  let pAway=100-pHome;
-
-  // clamp, keep draw zone between 45–55
-  const clamp=p=>{
-    if(p>75)return 75;
-    if(p<25)return 25;
-    return p;
-  };
-  pHome=clamp(pHome);
-  pAway=clamp(pAway);
-
-  let winner='Draw / 50-50';
-  let drawHint='<span class="draw">Draw zone: very possible if teams are balanced.</span>';
-  if(Math.abs(pHome-pAway)>6){
-    if(pHome>pAway) winner=home;
-    else winner=away;
-    drawHint='Draw chance: medium / low (one side has stronger bird energy).';
+  const bi=BIRDS.indexOf(bird);
+  const ri=BIRDS.indexOf(ruling);
+  const dist=(bi-ri+5)%5;
+  const actIdx=(clamped+dist)%5;
+  const mainActivity=cycle[actIdx];
+  const yamaStartTime=cycleStartMins+(clamped*yamaDuration);
+  return {mainActivity,yamaStartTime,activityCycle:cycle};
+}
+function getExactStatusAtTime(bird,timeMins,dayIdx,pakshaType){
+  const info=getMainYamaContext(bird,timeMins,dayIdx,pakshaType);
+  const {mainActivity,yamaStartTime,activityCycle}=info;
+  const mainIdx=activityCycle.indexOf(mainActivity);
+  let subStart=yamaStartTime;
+  for(let i=0;i<5;i++){
+    const act=activityCycle[(mainIdx+i)%5];
+    const dur=APAHARA_DURATIONS[act];
+    const subEnd=subStart+dur;
+    if(timeMins>=subStart && timeMins<subEnd){
+      return {activity:act,score:ACTIVITY_STRENGTH[act].score};
+    }
+    subStart=subEnd;
   }
-
-  const resultCard=document.getElementById('resultCard');
-  resultCard.style.display='block';
-
-  document.getElementById('winnerLine').innerHTML =
-    `<span class="tag tag-overall">Overall</span>`+
-    `Ruling bird for this day: <span class="excellent">${ruling}</span><br>`+
-    `Home <span class="team-home">${home}</span> (${homeBird}) vs `+
-    `Away <span class="team-away">${away}</span> (${awayBird})<br>`+
-    `Predicted winner (Panchapakshi only): <span class="excellent">${winner}</span>`;
-
-  const bar=document.getElementById('probBar');
-  bar.innerHTML =
-    `<div class="bar-wrap">
-       <div class="bar-fill-home" style="width:${pHome}%;"></div>
-       <div class="bar-fill-away" style="width:${pAway}%;"></div>
-       <div class="bar-label">
-         <span class="team-home">${home} ${pHome.toFixed(1)}%</span> ·
-         <span class="team-away">${away} ${pAway.toFixed(1)}%</span>
-       </div>
-     </div>`;
-
-  document.getElementById('drawLine').innerHTML =
-    `Draw verdict: <b>${Math.abs(pHome-pAway)<=6 ? 'YES – strong draw region' : 'NO – edge to one side'}</b><br>`+
-    drawHint;
-
-  document.getElementById('extraLine').innerHTML =
-    `Rule-lock: <b>Pure Panchapakshi</b> (Day ruler + Team bird + Friendly / Enemy).<br>`+
-    `Numerology / goal-time are NOT used in this version.`;
+  return {activity:'Die',score:ACTIVITY_STRENGTH.Die.score};
 }
 
-/* ----------------- API-FOOTBALL ----------------- */
+/* Team bird from 27-nakshatra style name calc */
+function teamNakIndexFromName(name){
+  if(!name) return 0;
+  const clean=name.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  if(!clean) return 0;
+  let sum=0;
+  for(const ch of clean){
+    sum+=ch.charCodeAt(0);
+  }
+  const idx = sum % 27; // 0–26
+  return idx;
+}
+function teamBirdFromName(name){
+  const idx=teamNakIndexFromName(name);
+  return PLAYER_NAK_BIRDS[idx] || 'Vulture';
+}
+
+/* Score helpers */
+function birdRelationScore(bird,ruling){
+  const friendly = FRIENDLY_BIRDS[ruling] || [];
+  const enemy = UNFRIENDLY_BIRDS[ruling] || [];
+  if(bird===ruling) return 3;
+  if(friendly.includes(bird)) return 2;
+  if(enemy.includes(bird)) return 0;
+  return 1; // neutral
+}
+function activityWeight(act){
+  switch(act){
+    case 'Rule': return 3;
+    case 'Eat':  return 2;
+    case 'Walk': return 1;
+    case 'Sleep':return 0;
+    case 'Die':  return -2;
+    default: return 0;
+  }
+}
+
+/* -------------------- STEP 1: API LOAD -------------------- */
+
 async function loadMatches(){
   const key=document.getElementById('apiKey').value.trim();
-  const filter=document.getElementById('apiFilter').value;
-  const status=document.getElementById('apiStatus');
-  const tbody=document.getElementById('matchTbody');
-  const table=document.getElementById('matchTable');
-  tbody.innerHTML='';
+  const filter=document.getElementById('matchFilter').value;
+  const msgEl=document.getElementById('apiMessage');
+  const table=document.getElementById('matchesTable');
+  const body=document.getElementById('matchesBody');
+
+  msgEl.textContent='';
+  body.innerHTML='';
   table.style.display='none';
+
   if(!key){
-    status.innerHTML='<span class="danger">Enter your API key first.</span>';
+    msgEl.innerHTML='<span class="error">Please paste your API-Football key.</span>';
     return;
   }
-  let url='https://v3.football.api-sports.io/fixtures';
-  if(filter==='live') url+='?live=all';        // live matches only
-  else url+='?next=20';                        // upcoming only
 
-  status.innerHTML='Loading from API…';
+  let today=new Date();
+  let fromDate, toDate;
+  if(filter==='today'){
+    fromDate=today;toDate=today;
+  }else if(filter==='tomorrow'){
+    fromDate=addDays(today,1);toDate=fromDate;
+  }else{
+    fromDate=today;toDate=addDays(today,7);
+  }
+
+  const fromStr=formatDateISO(fromDate);
+  const toStr=formatDateISO(toDate);
+
+  let url;
+  if(fromStr===toStr){
+    url=`https://v3.football.api-sports.io/fixtures?date=${fromStr}`;
+  }else{
+    url=`https://v3.football.api-sports.io/fixtures?from=${fromStr}&to=${toStr}`;
+  }
+
+  msgEl.textContent='Loading matches...';
 
   try{
     const res=await fetch(url,{
       headers:{'x-apisports-key':key}
     });
-    const data=await res.json();
-    if(!data.response || !data.response.length){
-      status.innerHTML='No matches found for this filter.';
+    if(!res.ok){
+      msgEl.innerHTML=`<span class="error">API error: HTTP ${res.status}</span>`;
       return;
     }
-    data.response.forEach(fix=>{
-      const f=fix.fixture;
-      const h=fix.teams.home;
-      const a=fix.teams.away;
-      const league=fix.league;
-      const localTime=new Date(f.date);
-      const displayTime = localTime.toLocaleString('en-GB',{
-        hour:'2-digit',minute:'2-digit',
-        day:'2-digit',month:'short'
-      });
-      const tr=document.createElement('tr');
-      tr.innerHTML =
-        `<td>${displayTime}</td>
-         <td>${h.name}</td>
-         <td>${a.name}</td>
-         <td>${league.name}</td>
-         <td>${league.country}</td>`;
-      tr.onclick=()=>applyFixture(fix);
-      tbody.appendChild(tr);
+    const data=await res.json();
+
+    const fixtures=(data.response||[]).filter(f=>{
+      const s=f.fixture.status.short;
+      const finished=['FT','AET','PEN','CANC','PST','ABD','AWD','WO'];
+      return !finished.includes(s);
     });
+
+    if(!fixtures.length){
+      msgEl.innerHTML='<span class="tiny">No live/upcoming fixtures for this filter.</span>';
+      return;
+    }
+
     table.style.display='table';
-    status.innerHTML=
-      `Loaded ${data.response.length} matches. Click a row to send it to the predictor.`;
-  }catch(e){
-    console.error(e);
-    status.innerHTML='<span class="danger">API error. Check key / network / quota.</span>';
+    fixtures.forEach((f,i)=>{
+      const tr=document.createElement('tr');
+      const dt=new Date(f.fixture.date);
+      const kickoffLocal = dt.toISOString().slice(0,16).replace('T',' ');
+      const city=(f.fixture.venue.city||'').trim();
+      const country=(f.fixture.venue.country||'').trim();
+      const cc=[city,country].filter(Boolean).join(', ');
+      const league=f.league && f.league.name ? f.league.name : '';
+      const status=f.fixture.status.short || '';
+
+      tr.innerHTML=
+        `<td>${kickoffLocal}</td>
+         <td>${f.teams.home.name}</td>
+         <td>${f.teams.away.name}</td>
+         <td>${league}</td>
+         <td>${cc}</td>
+         <td>${status}</td>`;
+
+      tr.addEventListener('click',()=>selectMatchFromApi(f));
+      body.appendChild(tr);
+    });
+
+    msgEl.innerHTML='<span class="tiny">Click a row above to send the match into Step 2.</span>';
+  }catch(err){
+    console.error(err);
+    msgEl.innerHTML='<span class="error">API error (check key / network). See console for details.</span>';
   }
 }
 
-function applyFixture(fix){
-  const f=fix.fixture;
-  const h=fix.teams.home;
-  const a=fix.teams.away;
-  const league=fix.league;
+function selectMatchFromApi(f){
+  const home=f.teams.home.name;
+  const away=f.teams.away.name;
+  const dt=new Date(f.fixture.date);
+  const dateStr=dt.toISOString().slice(0,10);
+  const timeStr=dt.toISOString().slice(11,16);
+  const tz=f.fixture.timezone || '';
+  const city=(f.fixture.venue.city||'').trim();
+  const country=(f.fixture.venue.country||'').trim();
+  const cc=[city,country].filter(Boolean).join(', ');
+  const paksha=autoPakshaFromDate(dateStr);
 
-  const dt=new Date(f.date);
-  const isoDate=dt.toISOString().slice(0,10);
-  const hh=dt.getHours().toString().padStart(2,'0');
-  const mm=dt.getMinutes().toString().padStart(2,'0');
+  document.getElementById('homeTeam').value=home;
+  document.getElementById('awayTeam').value=away;
+  document.getElementById('kickoffDate').value=dateStr;
+  document.getElementById('kickoffTime').value=timeStr;
+  document.getElementById('venueTz').value=tz;
+  document.getElementById('cityCountry').value=cc;
+  document.getElementById('paksha').value=paksha;
 
-  document.getElementById('homeTeam').value=h.name;
-  document.getElementById('awayTeam').value=a.name;
-  document.getElementById('matchDate').value=isoDate;
-  document.getElementById('kickoffTime').value=`${hh}:${mm}`;
-  document.getElementById('venueTz').value=f.timezone || '';
-  document.getElementById('leagueName').value=league.name;
-  document.getElementById('locationName').value=(f.venue?.city||'')+
-    (league.country ? `, ${league.country}` : '');
-
-  applyTeamThemes();           // sets colours & auto birds
-  autoSetPakshaFromDate();     // auto Shukla/Krishna
-  updateDayBird();             // show ruling bird
+  autoFromNames();
 }
 
-/* --------- INIT --------- */
+/* -------------------- STEP 2: AUTO BIRDS -------------------- */
+
+function autoFromNames(){
+  const home=document.getElementById('homeTeam').value.trim();
+  const away=document.getElementById('awayTeam').value.trim();
+  const dateStr=document.getElementById('kickoffDate').value;
+  const paksha=autoPakshaFromDate(dateStr);
+  document.getElementById('paksha').value=paksha;
+
+  const homeBird=teamBirdFromName(home);
+  const awayBird=teamBirdFromName(away);
+  document.getElementById('homeBird').value=homeBird || '';
+  document.getElementById('awayBird').value=awayBird || '';
+
+  updateDayInfo();
+}
+
+function updateDayInfo(){
+  const dateStr=document.getElementById('kickoffDate').value;
+  const paksha=document.getElementById('paksha').value;
+  const infoEl=document.getElementById('dayInfo');
+
+  if(!dateStr){
+    infoEl.textContent='Select kick-off date to see Day bird.';
+    return;
+  }
+  const d=new Date(dateStr+'T12:00:00');
+  const dayIdx=d.getDay(); // 0 = Sunday
+  const ruling=RULING_BIRDS[paksha][dayIdx];
+  const friendly=FRIENDLY_BIRDS[ruling] || [];
+  const enemy=UNFRIENDLY_BIRDS[ruling] || [];
+
+  infoEl.innerHTML =
+    `<span class="tag tag-info">Day Bird</span>
+     Ruling bird: <b>${ruling}</b> • Friendly: <span class="home-text">${friendly.join(', ')||'-'}</span>
+     • Enemy: <span class="away-text">${enemy.join(', ')||'-'}</span>`;
+}
+
+/* -------------------- STEP 3: PREDICTION -------------------- */
+
+function runPrediction(){
+  const home=document.getElementById('homeTeam').value.trim() || 'Home';
+  const away=document.getElementById('awayTeam').value.trim() || 'Away';
+  const dateStr=document.getElementById('kickoffDate').value;
+  const timeStr=document.getElementById('kickoffTime').value;
+  const paksha=document.getElementById('paksha').value;
+  let homeBird=document.getElementById('homeBird').value;
+  let awayBird=document.getElementById('awayBird').value;
+
+  if(!dateStr || !timeStr){
+    alert('Set kick-off date & time.');
+    return;
+  }
+
+  if(!homeBird) homeBird=teamBirdFromName(home);
+  if(!awayBird) awayBird=teamBirdFromName(away);
+  document.getElementById('homeBird').value=homeBird;
+  document.getElementById('awayBird').value=awayBird;
+
+  const d=new Date(dateStr+'T12:00:00');
+  const dayIdx=d.getDay();
+  const ruling=RULING_BIRDS[paksha][dayIdx];
+
+  const koMins=timeToMins(timeStr);
+  const homeAct=getExactStatusAtTime(homeBird,koMins,dayIdx,paksha);
+  const awayAct=getExactStatusAtTime(awayBird,koMins,dayIdx,paksha);
+
+  const homeRel=birdRelationScore(homeBird,ruling);
+  const awayRel=birdRelationScore(awayBird,ruling);
+
+  const homeScore=homeRel + activityWeight(homeAct.activity);
+  const awayScore=awayRel + activityWeight(awayAct.activity);
+
+  // normalise to percentage 30–70
+  const minScore=Math.min(homeScore,awayScore);
+  const adjHome=homeScore-minScore+1;
+  const adjAway=awayScore-minScore+1;
+  const total=adjHome+adjAway;
+  let pHome=(adjHome/total)*100;
+  let pAway=100-pHome;
+
+  const clamp=p=>{
+    if(p>70)return 70;
+    if(p<30)return 30;
+    return p;
+  };
+  pHome=clamp(pHome);
+  pAway=clamp(pAway);
+
+  let winner='Balanced / 50-50';
+  if(Math.abs(pHome-pAway)<4){
+    pHome=50;pAway=50;
+  }else if(pHome>pAway){
+    winner=home;
+  }else{
+    winner=away;
+  }
+
+  // Draw logic
+  let drawFlag='No';
+  if(Math.abs(pHome-pAway)<=5){
+    drawFlag='Yes';
+  }
+
+  // Correct score pattern based on score difference + activity
+  let scoreText='';
+  const diff=homeScore-awayScore;
+  const strongTeam = diff>=0 ? home : away;
+  const strongClass = diff>=0 ? 'home-text' : 'away-text';
+  const absDiff=Math.abs(diff);
+
+  if(drawFlag==='Yes'){
+    scoreText='Balanced day → Draw pattern: 0-0 or 1-1.';
+  }else if(absDiff<=2){
+    scoreText=`Edge to <span class="${strongClass}">${strongTeam}</span> → 1-0 or 2-1 type win.`;
+  }else{
+    scoreText=`Clear edge to <span class="${strongClass}">${strongTeam}</span> → 2-0 or 3-1 type win.`;
+  }
+
+  const resultCard=document.getElementById('resultCard');
+  const summaryEl=document.getElementById('resultSummary');
+  const detailEl=document.getElementById('resultDetails');
+
+  summaryEl.innerHTML =
+    `<span class="tag tag-info">Day</span>
+     Ruling bird: <b>${ruling}</b>
+     <br>
+     <span class="tag tag-good">Teams</span>
+     <span class="home-text">${home}</span> bird: <b>${homeBird}</b> •
+     <span class="away-text">${away}</span> bird: <b>${awayBird}</b>`;
+
+  detailEl.innerHTML =
+    `<div class="section-title">Kick-off Activity</div>
+     <div>
+       <span class="home-text">${home}</span> → ${homeAct.activity} (${homeAct.score})
+       &nbsp;|&nbsp;
+       <span class="away-text">${away}</span> → ${awayAct.activity} (${awayAct.score})
+     </div>
+     <div style="margin-top:6px;">
+       <span class="tag tag-neutral">Percent</span>
+       <span class="home-text">${home}</span>: ${pHome.toFixed(1)}% •
+       <span class="away-text">${away}</span>: ${pAway.toFixed(1)}%
+     </div>
+     <div style="margin-top:6px;">
+       <span class="tag tag-good">Overall winner</span>
+       ${winner==='Balanced / 50-50'
+          ? `<span class="draw-text">Balanced · 50-50</span>`
+          : `<span class="winner-text">${winner}</span>`}
+     </div>
+     <div style="margin-top:6px;">
+       <span class="tag ${drawFlag==='Yes'?'tag-neutral':'tag-info'}">Draw</span>
+       Draw chance: <b>${drawFlag}</b>
+     </div>
+     <div style="margin-top:6px;">
+       <span class="tag tag-bad">Correct score idea</span>
+       ${scoreText}
+     </div>`;
+
+  resultCard.style.display='block';
+}
+
+/* -------------------- INIT -------------------- */
+
 (function init(){
   const today=new Date();
-  document.getElementById('matchDate').value=today.toISOString().slice(0,10);
-  autoSetPakshaFromDate();
-  applyTeamThemes();
-  updateDayBird();
+  document.getElementById('kickoffDate').value=formatDateISO(today);
+  document.getElementById('kickoffTime').value='19:30';
+  document.getElementById('paksha').value=autoPakshaFromDate(formatDateISO(today));
+  updateDayInfo();
 
-  document.getElementById('matchDate')
-    .addEventListener('change',()=>{autoSetPakshaFromDate();updateDayBird();});
+  document.getElementById('kickoffDate').addEventListener('change',()=>{
+    document.getElementById('paksha').value=autoPakshaFromDate(
+      document.getElementById('kickoffDate').value
+    );
+    updateDayInfo();
+  });
+  document.getElementById('paksha').addEventListener('change',updateDayInfo);
 })();
 </script>
 </body>
