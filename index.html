@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Astro Football • Pure Panchapakshi</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root{
-      --t1:#0ea5e9;
-      --t2:#22c55e;
+      --home-main:#0ea5e9;
+      --away-main:#22c55e;
     }
+
     *{box-sizing:border-box;}
+
     body{
       margin:0;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -17,55 +19,56 @@
       color:#111827;
     }
     .wrap{
-      max-width:960px;
+      max-width:920px;
       margin:0 auto;
-      padding:12px;
+      padding:12px 12px 40px;
     }
     h1{
       font-size:18px;
-      letter-spacing:.25em;
+      letter-spacing:0.25em;
       text-transform:uppercase;
       color:#4b5563;
-      margin:4px 0;
+      margin:8px 0 2px;
       text-align:center;
     }
     h2{
-      font-size:11px;
-      font-weight:600;
-      letter-spacing:.25em;
+      font-size:10px;
+      letter-spacing:0.18em;
       text-transform:uppercase;
-      color:#9ca3af;
-      margin:0 0 8px 0;
-    }
-    .sub{
-      text-align:center;
-      font-size:11px;
       color:#6b7280;
-      margin-bottom:10px;
+      text-align:center;
+      margin:0 0 14px;
     }
     .card{
-      background:#f9fafb;
+      background:#f3f4f6;
       border-radius:16px;
+      border:1px solid #e5e7eb;
       padding:12px;
       margin-bottom:12px;
-      border:1px solid #e5e7eb;
-      box-shadow:0 8px 18px rgba(15,23,42,0.06);
+      box-shadow:0 10px 25px rgba(15,23,42,0.08);
+    }
+    .title-sm{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      color:#6b7280;
+      margin-bottom:8px;
     }
     label{
       display:block;
       font-size:10px;
       text-transform:uppercase;
-      letter-spacing:.18em;
+      letter-spacing:0.18em;
       color:#9ca3af;
-      margin-bottom:2px;
+      margin-bottom:3px;
     }
     input,select{
       width:100%;
-      padding:7px 9px;
+      padding:8px 10px;
       border-radius:10px;
       border:1px solid #d1d5db;
-      font-size:13px;
       background:#ffffff;
+      font-size:13px;
       color:#111827;
       margin-bottom:8px;
     }
@@ -75,34 +78,35 @@
       box-shadow:0 0 0 1px #0ea5e9;
     }
     button{
+      width:100%;
+      padding:9px;
       border:none;
       border-radius:999px;
-      padding:8px 12px;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
       font-size:11px;
       font-weight:600;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      cursor:pointer;
       color:#ffffff;
-    }
-    .btn-main{
-      background:linear-gradient(90deg,#22c55e,#16a34a);
-      box-shadow:0 8px 18px rgba(34,197,94,0.45);
-      width:100%;
-    }
-    .btn-sec{
-      background:linear-gradient(90deg,#0ea5e9,#6366f1);
-      box-shadow:0 8px 18px rgba(14,165,233,0.4);
-      width:100%;
+      cursor:pointer;
     }
     button:active{transform:scale(.97);}
-    .row{display:flex;flex-wrap:wrap;gap:8px;}
-    .row>div{flex:1;min-width:0;}
 
-    .small{
+    .btn-primary{
+      background:linear-gradient(90deg,#2563eb,#22c55e);
+      box-shadow:0 8px 18px rgba(37,99,235,0.4);
+    }
+    .btn-secondary{
+      background:linear-gradient(90deg,#4b5563,#111827);
+      box-shadow:0 8px 18px rgba(15,23,42,0.4);
+    }
+
+    .row{display:flex;flex-wrap:wrap;gap:8px;}
+    .row>div{flex:1 1 120px;}
+
+    .tiny{
       font-size:11px;
       color:#6b7280;
-      line-height:1.5;
+      line-height:1.6;
       margin-top:4px;
     }
 
@@ -115,12 +119,11 @@
       border:1px solid #e5e7eb;
       padding:4px 6px;
       text-align:left;
-      white-space:nowrap;
     }
     th{
       background:#e5f3ff;
       text-transform:uppercase;
-      letter-spacing:.08em;
+      letter-spacing:0.08em;
       font-size:10px;
       color:#374151;
       position:sticky;
@@ -129,8 +132,8 @@
     }
     tr:nth-child(even){background:#ffffff;}
     tr:nth-child(odd){background:#f9fafb;}
-    tr.live-row{background:#fef2f2;}
-    tr:hover{background:#e0f2fe;cursor:pointer;}
+    tr.clickable{cursor:pointer;}
+    tr.clickable:hover{background:#e0f2fe;}
 
     .matches-wrap{
       max-height:260px;
@@ -138,72 +141,110 @@
       border-radius:10px;
       border:1px solid #e5e7eb;
       background:#ffffff;
+      margin-top:6px;
     }
 
     .tag{
       display:inline-block;
       padding:2px 8px;
       border-radius:999px;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
       font-size:10px;
       font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:.12em;
       margin-right:4px;
+      margin-bottom:2px;
     }
-    .tag-live{background:#fee2e2;color:#b91c1c;}
-    .tag-info{background:#e0f2fe;color:#0369a1;}
-    .tag-day{background:#dbeafe;color:#1d4ed8;}
-    .tag-bird{background:#dcfce7;color:#166534;}
-    .tag-res{background:#fef3c7;color:#92400e;}
+    .tag-info{background:#dbeafe;color:#1d4ed8;}
+    .tag-win{background:#bbf7d0;color:#166534;}
+    .tag-draw{background:#fee2a7;color:#92400e;}
+    .tag-score{background:#e0f2fe;color:#075985;}
 
-    .dot-live{
-      display:inline-block;
-      width:7px;
-      height:7px;
+    .good-text{color:#16a34a;font-weight:600;}
+    .bad-text{color:#ef4444;font-weight:600;}
+    .mid-text{color:#4b5563;font-weight:600;}
+
+    .home-text{color:var(--home-main);font-weight:600;}
+    .away-text{color:var(--away-main);font-weight:600;}
+
+    .bar-wrap{
+      width:100%;
+      height:16px;
       border-radius:999px;
-      background:#ef4444;
-      margin-right:4px;
+      overflow:hidden;
+      background:#e5e7eb;
+      border:1px solid #d1d5db;
+      margin:6px 0;
+      position:relative;
+      display:flex;
+    }
+    .bar-home{
+      height:100%;
+      background:linear-gradient(90deg,var(--home-main),#38bdf8);
+    }
+    .bar-away{
+      height:100%;
+      background:linear-gradient(90deg,var(--away-main),#22c55e);
+    }
+    .bar-label{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      font-size:10px;
+      font-weight:600;
+      color:#ffffff;
+      text-shadow:0 1px 2px rgba(0,0,0,0.6);
+      white-space:nowrap;
     }
 
-    .good{color:#16a34a;font-weight:600;}
-    .bad{color:#ef4444;font-weight:600;}
-    .mid{color:#0ea5e9;font-weight:600;}
-    .winner{color:#16a34a;font-weight:700;}
-    .team1{color:var(--t1);font-weight:600;}
-    .team2{color:var(--t2);font-weight:600;}
+    .live-dot{
+      color:#ef4444;
+      font-size:10px;
+      font-weight:900;
+      margin-right:2px;
+    }
 
-    .result-line{
-      font-size:11.5px;
-      margin:2px 0;
+    .error-text{
+      color:#b91c1c;
+      font-size:11px;
+      margin-top:4px;
     }
   </style>
 </head>
 <body>
 <div class="wrap">
   <h1>ASTRO FOOTBALL</h1>
-  <div class="sub">Pure Panchapakshi • Football Only • Rule Lock 🔒</div>
+  <h2>Pure Panchapakshi • Football Only • Rule Lock 🔒</h2>
 
-  <!-- STEP 1: LOAD MATCHES -->
+  <!-- STEP 1 -->
   <div class="card">
-    <h2>STEP 1 · LOAD FOOTBALL MATCHES (API-FOOTBALL)</h2>
+    <div class="title-sm">Step 1 · Load Football Matches (API-Football)</div>
+
     <div class="row">
       <div>
-        <label>API Key (api-football.com)</label>
-        <input id="apiKey" placeholder="Paste your API key here">
+        <label>API key (api-football.com)</label>
+        <input id="apiKey" placeholder="Paste your API key" />
       </div>
-      <div style="flex-basis:130px;max-width:130px;">
-        <label>&nbsp;</label>
-        <button class="btn-sec" onclick="loadMatches()">LOAD</button>
+      <div>
+        <label>Matches</label>
+        <select id="matchFilter">
+          <option value="today">Today · Live & Upcoming</option>
+        </select>
       </div>
-    </div>
-    <div class="small">
-      <span class="tag tag-info">INFO</span>
-      Key is used only in your browser. Shows today
-      <span class="mid">LIVE</span> (red dot) + upcoming fixtures.
-      Finished matches are removed. Tap a row to send the match into Step 2.
+      <div style="flex:0 0 120px;align-self:flex-end;">
+        <button class="btn-primary" id="btnLoad">Load</button>
+      </div>
     </div>
 
-    <div class="matches-wrap" id="matchesWrap">
+    <div class="tiny">
+      Key is used only in your browser. Shows today <b>LIVE</b> (red dot) + upcoming fixtures.  
+      Finished matches are removed. Click a row below to send the match into Step 2.
+    </div>
+
+    <div id="apiError" class="error-text" style="display:none;"></div>
+
+    <div class="matches-wrap" id="matchesWrap" style="display:none;">
       <table id="matchesTable">
         <thead>
           <tr>
@@ -215,539 +256,578 @@
             <th>Status</th>
           </tr>
         </thead>
-        <tbody id="matchesBody">
-          <tr><td colspan="6">Paste API key and click LOAD…</td></tr>
-        </tbody>
+        <tbody></tbody>
       </table>
     </div>
   </div>
 
-  <!-- STEP 2: MATCH INPUT -->
+  <!-- STEP 2 -->
   <div class="card">
-    <h2>STEP 2 · MATCH INPUT (AUTO FROM API OR MANUAL)</h2>
+    <div class="title-sm">Step 2 · Match Input (From API or Manual)</div>
+
     <div class="row">
       <div>
         <label>Home team</label>
-        <input id="homeTeam" placeholder="Home team name">
+        <input id="homeTeam" placeholder="Home team name" />
       </div>
       <div>
         <label>Away team</label>
-        <input id="awayTeam" placeholder="Away team name">
+        <input id="awayTeam" placeholder="Away team name" />
       </div>
     </div>
+
     <div class="row">
       <div>
         <label>Kickoff date (venue)</label>
-        <input id="kickDate" type="date">
+        <input id="kickDate" type="date" />
       </div>
       <div>
-        <label>Kickoff time (venue local)</label>
-        <input id="kickTime" type="time">
+        <label>Kickoff time (venue)</label>
+        <input id="kickTime" type="time" />
       </div>
       <div>
         <label>Venue timezone (from API)</label>
-        <input id="venueTz" placeholder="Ex: Europe/London">
+        <input id="venueTz" placeholder="Ex: Europe/London" />
       </div>
     </div>
-    <div class="small" id="autoInfo">
-      Paksha & team birds will be locked automatically from match date + team name (numerology → 27 nakshatra → bird).
-    </div>
-  </div>
 
-  <!-- STEP 3: PANCHAPAKSHI RESULT -->
-  <div class="card">
-    <h2>STEP 3 · PURE PANCHAPAKSHI PREDICTION (AUTO LOCK)</h2>
     <div class="row">
       <div>
-        <button class="btn-main" onclick="runPanchapakshi()">RUN PANCHAPAKSHI PREDICTION</button>
+        <label>League / competition</label>
+        <input id="league" placeholder="Ex: Premier League" />
+      </div>
+      <div>
+        <label>City / country</label>
+        <input id="city" placeholder="Ex: Liverpool, England" />
       </div>
     </div>
 
-    <div id="resultArea" class="small" style="margin-top:10px;">
-      Waiting for match input…
+    <div class="row">
+      <div>
+        <label>Paksha (auto from date)</label>
+        <select id="paksha">
+          <option value="shukla">Shukla</option>
+          <option value="krishna">Krishna</option>
+        </select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-secondary" id="btnAutoFromName">
+          Auto team birds from name (lock)
+        </button>
+      </div>
+    </div>
+
+    <div class="tiny" id="dayInfo"></div>
+    <div class="tiny" id="teamBirdInfo"></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card">
+    <div class="title-sm">Step 3 · Pure Panchapakshi Prediction (Auto Lock)</div>
+    <button class="btn-primary" id="btnPredict">Run Panchapakshi Prediction</button>
+    <div class="tiny" id="waitInfo">Waiting for match input…</div>
+
+    <div id="resultBlock" style="display:none;margin-top:8px;">
+      <div id="winnerLine" class="tiny"></div>
+      <div id="percentBar"></div>
+      <div id="drawLine" class="tiny"></div>
+      <div id="scoreLine" class="tiny"></div>
+      <div id="detailLine" class="tiny"></div>
     </div>
   </div>
 </div>
 
 <script>
-/* ------------ NUMEROLOGY → 27 NAKSHATRA → BIRD (TEAM) -------------- */
+/* ---------- BASIC DATA ---------- */
+const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
 
-// Pythagorean numerology mapping
-const NUM_TABLE = {
-  A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,
-  J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,
-  S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8
-};
-
-// 27 nakshatra → Panchapakshi bird
-const NAK_BIRDS = [
-  'Peacock','Peacock','Peacock','Peacock','Peacock',       // 1-5
-  'Cock','Cock','Cock','Cock','Cock','Cock',              // 6-11
-  'Crow','Crow','Crow','Crow','Crow',                     // 12-16
-  'Owl','Owl','Owl','Owl','Owl',                          // 17-21
-  'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture' // 22-27
+const PLAYER_NAK_BIRDS = [
+  'Peacock','Peacock','Peacock','Peacock','Peacock',
+  'Cock','Cock','Cock','Cock','Cock','Cock',
+  'Crow','Crow','Crow','Crow','Crow',
+  'Owl','Owl','Owl','Owl','Owl',
+  'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture'
 ];
 
-function teamNameToNumber(name){
-  let s = 0;
-  const up = name.toUpperCase();
-  for(const ch of up){
-    if(NUM_TABLE[ch]) s += NUM_TABLE[ch];
-  }
-  if(s === 0) return 1;
-  while(s > 9){
-    let t = 0;
-    for(const c of String(s)) t += Number(c);
-    s = t;
-  }
-  return s; // 1..9
-}
-
-function teamNameToNakIndex(name){
-  const n = teamNameToNumber(name); // 1..9
-  // spread 9 numbers into 27 stars: each gets 3
-  // index 0..26
-  const idx = (n - 1) * 3; // 0,3,6,...24
-  return idx;              // choose first star in that block
-}
-
-function teamNameToBird(name){
-  const idx = teamNameToNakIndex(name);
-  return NAK_BIRDS[idx] || 'Peacock';
-}
-
-/* ------------ PANCHAPAKSHI DAY BIRD + ACTIVITY ENGINE -------------- */
-
-const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
 const DAY_PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
 
 const BIRD_PLANETS = {
   shukla: {
-    Vulture:['Jupiter','Saturn'],
-    Owl:['Sun','Venus'],
-    Crow:['Moon'],
-    Cock:['Mars'],
-    Peacock:['Mercury']
+    Vulture: ['Jupiter','Saturn'],
+    Owl:     ['Sun','Venus'],
+    Crow:    ['Moon'],
+    Cock:    ['Mars'],
+    Peacock: ['Mercury']
   },
   krishna: {
-    Vulture:['Mars'],
-    Owl:['Moon'],
-    Crow:['Sun'],
-    Cock:['Jupiter','Saturn'],
-    Peacock:['Mercury','Venus']
+    Vulture: ['Mars'],
+    Owl:     ['Moon'],
+    Crow:    ['Sun'],
+    Cock:    ['Jupiter','Saturn'],
+    Peacock: ['Mercury','Venus']
   }
 };
 
+const FRIENDLY_BIRDS = {
+  Vulture: ['Owl','Cock'],
+  Owl:     ['Vulture','Peacock'],
+  Crow:    ['Peacock','Cock'],
+  Cock:    ['Vulture','Crow'],
+  Peacock: ['Owl','Crow']
+};
+const UNFRIENDLY_BIRDS = {
+  Vulture: ['Peacock','Crow'],
+  Owl:     ['Crow','Cock'],
+  Crow:    ['Vulture','Owl'],
+  Cock:    ['Peacock','Owl'],
+  Peacock: ['Vulture','Cock']
+};
+
+/* activity scores lock */
+const ACTIVITY_SCORES = {
+  Rule:100,
+  Eat:80,
+  Walk:50,
+  Sleep:30,
+  Die:0
+};
+const ACTIVITIES = ['Rule','Eat','Walk','Sleep','Die'];
+
+/* numerology: simple Chaldean style */
+const NUM_MAP = {
+  1:'aiyjqsAIYJQS',
+  2:'bkrBKR',
+  3:'cglCGL',
+  4:'dmtDMT',
+  5:'ehnxEHNX',
+  6:'uvUWV',
+  7:'ozOZ',
+  8:'fpFP'
+};
+function nameToNumber(name){
+  if(!name) return 0;
+  let sum=0;
+  for(const ch of name){
+    for(const [num,letters] of Object.entries(NUM_MAP)){
+      if(letters.includes(ch)){ sum += Number(num); break; }
+    }
+  }
+  while(sum>9) sum = String(sum).split('').reduce((a,b)=>a+Number(b),0);
+  return sum;
+}
+
+/* derive day ruling bird array from planet table */
 function deriveRulingBirds(paksha){
-  const map = BIRD_PLANETS[paksha];
-  const arr = [];
+  const map=BIRD_PLANETS[paksha];
+  const arr=[];
   for(let d=0;d<7;d++){
-    const planet = DAY_PLANETS[d];
-    let chosen = 'Vulture';
-    for(const b of BIRDS){
-      if((map[b]||[]).includes(planet)){ chosen = b; break; }
+    const planet=DAY_PLANETS[d];
+    let chosen='Vulture';
+    for(const bird of BIRDS){
+      const list=map[bird]||[];
+      if(list.includes(planet)){ chosen=bird;break;}
     }
     arr.push(chosen);
   }
   return arr;
 }
-
 const RULING_BIRDS = {
-  shukla: deriveRulingBirds('shukla'),
-  krishna: deriveRulingBirds('krishna')
+  shukla:deriveRulingBirds('shukla'),
+  krishna:deriveRulingBirds('krishna')
 };
 
-// friendly / enemy for synergy
-const FRIENDLY = {
-  Vulture:['Owl','Cock'],
-  Owl:['Vulture','Peacock'],
-  Crow:['Peacock','Cock'],
-  Cock:['Vulture','Crow'],
-  Peacock:['Owl','Crow']
-};
-const ENEMY = {
-  Vulture:['Peacock','Crow'],
-  Owl:['Crow','Cock'],
-  Crow:['Vulture','Owl'],
-  Cock:['Peacock','Owl'],
-  Peacock:['Vulture','Cock']
-};
-
-// Apahara durations in minutes
-const APAHARA_DURATIONS = { Rule:48, Eat:30, Walk:36, Sleep:30, Die:36 };
-// Activity scores (user rule)
-const ACTIVITY_SCORES = { Rule:100, Eat:80, Walk:50, Sleep:30, Die:0 };
-
-// day / night cycles
-const ACTIVITY_CYCLES = {
-  shukla_day:['Eat','Walk','Rule','Sleep','Die'],
-  shukla_night:['Eat','Rule','Die','Walk','Sleep'],
-  krishna_day:['Eat','Die','Sleep','Rule','Walk'],
-  krishna_night:['Eat','Sleep','Walk','Die','Rule']
-};
-
-// return {activity:'Rule'|'Eat'|...}
-function getActivityAtTime(bird, minutes, dayIdx, paksha){
-  // 0..1439 IST-style simple day: 06:00-18:00 day, else night
-  let t = minutes;
-  const dayStart = 6*60;
-  const nightStart = 18*60;
-  if(t < dayStart) t += 1440; // after midnight
-
-  let isNight, minsSince, cycleStart;
-  if(t >= dayStart && t < nightStart){
-    isNight = false;
-    minsSince = t - dayStart;
-    cycleStart = dayStart;
-  }else{
-    isNight = true;
-    if(t >= nightStart){
-      minsSince = t - nightStart;
-      cycleStart = nightStart;
-    }else{
-      minsSince = (t+1440) - nightStart;
-      cycleStart = nightStart;
-    }
-  }
-  const yamaDuration = 144; // 2h24m
-  const yamaIndex = Math.floor(minsSince / yamaDuration);
-  const clamped = Math.min(yamaIndex,4);
-  const key = paksha + '_' + (isNight ? 'night':'day');
-  const cycle = ACTIVITY_CYCLES[key];
-  const ruling = RULING_BIRDS[paksha][dayIdx];
-
-  const bi = BIRDS.indexOf(bird);
-  const ri = BIRDS.indexOf(ruling);
-  const dist = (bi - ri + 5) % 5;
-  const actIdx = (clamped + dist) % 5;
-  const mainActivity = cycle[actIdx];
-
-  // break main activity into 5 sub apaharas starting at cycleStart + clamped*yamaDuration
-  // then pick sub covering "minutes"
-  let start = cycleStart + clamped*yamaDuration;
-  const order = ['Rule','Eat','Walk','Sleep','Die']; // inner order
-  let cur = start;
-  for(const a of order){
-    const dur = APAHARA_DURATIONS[a];
-    const s = cur;
-    const e = cur + dur;
-    if(minutes >= s && minutes < e){
-      return {activity:a};
-    }
-    cur = e;
-  }
-  // fallback
-  return {activity:mainActivity};
-}
-
-/* ------------ MOON AGE → AUTO PAKSHA (SHUKLA / KRISHNA) -------------- */
-
-function moonAge(date){
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth() + 1;
-  const day = date.getUTCDate();
+/* moon age → paksha */
+function computeMoonAge(date){
+  const year=date.getUTCFullYear();
+  const month=date.getUTCMonth()+1;
+  const day=date.getUTCDate();
   let yy = year - Math.floor((12 - month)/10);
   let mm = month + 9;
-  if(mm >= 12) mm -= 12;
+  if(mm>=12) mm -= 12;
   const k1 = Math.floor(365.25*(yy+4712));
-  const k2 = Math.floor(30.6*mm + 0.5);
+  const k2 = Math.floor(30.6*mm+0.5);
   const k3 = Math.floor(Math.floor((yy/100)+49)*0.75) - 38;
   const jd = k1 + k2 + day + 59 - k3;
   const ip = (jd - 2451550.1)/29.530588853;
   const frac = ip - Math.floor(ip);
-  return frac*29.530588853; // 0..29.53
+  return frac*29.530588853;
 }
-
-function pakshaFromDateStr(dateStr){
+function autoPakshaFromDateStr(dateStr){
   if(!dateStr) return 'shukla';
-  const d = new Date(dateStr+'T00:00:00Z');
-  const age = moonAge(d);
-  return age < 14.765 ? 'shukla' : 'krishna';
+  const d=new Date(dateStr+'T12:00:00Z');
+  const age=computeMoonAge(d);
+  return age<14.765?'shukla':'krishna';
 }
 
-/* ------------ SCORE + RESULT HELPERS -------------- */
-
-function teamScore(bird, rulingBird, activity){
-  let base = ACTIVITY_SCORES[activity] || 0;
-  if(bird === rulingBird) base += 10;
-  if((FRIENDLY[rulingBird]||[]).includes(bird)) base += 5;
-  if((ENEMY[rulingBird]||[]).includes(bird)) base -= 10;
-  if(base < 0) base = 0;
-  if(base > 110) base = 110;
-  return base;
+/* helpers */
+function timeToMins(t){
+  if(!t) return 0;
+  const [h,m]=t.split(':').map(Number);
+  return h*60+m;
+}
+function minsToHHMM(m){
+  let x=m%1440;
+  if(x<0)x+=1440;
+  const h=Math.floor(x/60);
+  const mi=x%60;
+  return String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
 }
 
-function guessGoals(activity, advantageSign){
-  let g = 0;
-  if(activity === 'Rule') g = 3;
-  else if(activity === 'Eat') g = 2;
-  else if(activity === 'Walk') g = 1;
-  else if(activity === 'Sleep') g = 1;
-  else g = 0;
-  if(advantageSign > 0) g += 1;
-  if(advantageSign < 0 && g > 0) g -= 1;
-  if(g < 0) g = 0;
-  if(g > 5) g = 5;
-  return g;
+/* simple activity from time (no paksha change, lock rule table) */
+function getActivityForTime(mins){
+  const slot = Math.floor(((mins%1440)+1440)%1440 / (1440/5)); // 0..4
+  return ACTIVITIES[slot];
 }
 
-/* ------------ STEP 3: RUN PREDICTION -------------- */
-
-function runPanchapakshi(){
-  const home = document.getElementById('homeTeam').value.trim();
-  const away = document.getElementById('awayTeam').value.trim();
-  const dateStr = document.getElementById('kickDate').value;
-  const timeStr = document.getElementById('kickTime').value;
-  const resEl = document.getElementById('resultArea');
-
-  if(!home || !away){
-    alert("Enter home + away team (or click a match row in Step 1).");
-    return;
-  }
-  if(!dateStr || !timeStr){
-    alert("Enter kickoff date & time.");
-    return;
-  }
-
-  const paksha = pakshaFromDateStr(dateStr);
-  const pakshaLabel = paksha === 'shukla' ? 'Shukla (Waxing)' : 'Krishna (Waning)';
-
-  const d = new Date(dateStr);
-  const dayIdx = d.getDay(); // 0=Sun
-  const rulingBird = RULING_BIRDS[paksha][dayIdx];
-
-  const [hStr,mStr] = timeStr.split(':');
-  const mins = parseInt(hStr,10)*60 + parseInt(mStr,10);
-
-  const homeBird = teamNameToBird(home);
-  const awayBird = teamNameToBird(away);
-
-  const actHome = getActivityAtTime(homeBird, mins, dayIdx, paksha).activity;
-  const actAway = getActivityAtTime(awayBird, mins, dayIdx, paksha).activity;
-
-  const sHome = teamScore(homeBird, rulingBird, actHome);
-  const sAway = teamScore(awayBird, rulingBird, actAway);
-
-  let winnerText = 'Balanced / 50-50';
-  let drawYes = 'Yes';
-  const diff = Math.abs(sHome - sAway);
-
-  if(diff >= 8){
-    drawYes = 'No';
-    winnerText = sHome > sAway ? home : away;
-  }
-
-  const advSignHome = sHome === sAway ? 0 : (sHome > sAway ? 1 : -1);
-  const advSignAway = -advSignHome;
-
-  const gHome = guessGoals(actHome, advSignHome);
-  const gAway = guessGoals(actAway, advSignAway);
-
-  const drawText = (gHome === gAway) ? 'Yes (scoreline level)' : drawYes;
-
-  const dateNice = dateStr.split('-').reverse().join('-');
-
-  resEl.innerHTML =
-    `<div class="result-line">
-       <span class="tag tag-day">DAY</span>
-       Match date: <b>${dateNice}</b> • Paksha auto: <b>${pakshaLabel}</b> •
-       Ruling bird: <span class="good">${rulingBird}</span>
-     </div>
-     <div class="result-line">
-       <span class="tag tag-bird">TEAM BIRDS (LOCKED)</span>
-       <span class="team1">${home}</span> → <b>${homeBird}</b> •
-       <span class="team2">${away}</span> → <b>${awayBird}</b>
-     </div>
-     <div class="result-line">
-       <span class="tag tag-info">KICKOFF</span>
-       Local time: <b>${timeStr}</b> • Activity →
-       <span class="team1">${home}</span>:
-       <span class="mid">${actHome}</span>,
-       score <b>${sHome}</b> •
-       <span class="team2">${away}</span>:
-       <span class="mid">${actAway}</span>,
-       score <b>${sAway}</b>
-     </div>
-     <div class="result-line">
-       <span class="tag tag-res">OVERALL</span>
-       Overall Winner: <span class="winner">${winnerText}</span> 🏆
-       &nbsp; | &nbsp; Draw: <b>${drawText}</b>
-     </div>
-     <div class="result-line">
-       <span class="tag tag-res">CORRECT SCORE LOCK</span>
-       Predicted score (home-away):
-       <span class="team1">${home}</span> <b>${gHome}</b> – 
-       <span class="team2">${away}</span> <b>${gAway}</b>
-     </div>
-     <div class="small" style="margin-top:6px;">
-       Rule = 100, Eat = 80, Walk = 50, Sleep = 30, Die = 0.
-       Pure Panchapakshi engine – no cricket, no extra systems.
-     </div>`;
-
-  // update auto info line
-  document.getElementById('autoInfo').innerHTML =
-    `Auto lock: Paksha = <b>${pakshaLabel}</b>, 
-     Home bird = <b>${homeBird}</b>, Away bird = <b>${awayBird}</b>
-     (team name numerology → 27 nakshatra → bird).`;
+/* team bird from name numerology → nakshatra → bird */
+function teamNameToBird(name){
+  const num = nameToNumber(name.toUpperCase());
+  if(!num) return null;
+  const nakIndex = ((num-1)*3) % 27; // spreads a bit
+  return PLAYER_NAK_BIRDS[nakIndex] || null;
 }
 
-/* ------------ STEP 1: API-FOOTBALL MATCHES -------------- */
+/* global state */
+let lastHomeBird=null;
+let lastAwayBird=null;
+let lastDayBird=null;
 
-function minsToHM(dateStr){
-  const d = new Date(dateStr);
-  const h = String(d.getHours()).padStart(2,'0');
-  const m = String(d.getMinutes()).padStart(2,'0');
-  return `${h}:${m}`;
-}
+/* ---------- UI DOM ---------- */
+const apiKeyInput   = document.getElementById('apiKey');
+const btnLoad       = document.getElementById('btnLoad');
+const matchesWrap   = document.getElementById('matchesWrap');
+const matchesTable  = document.getElementById('matchesTable').querySelector('tbody');
+const apiErrorDiv   = document.getElementById('apiError');
 
-async function loadMatches(){
-  const key = document.getElementById('apiKey').value.trim();
+const homeTeamInput = document.getElementById('homeTeam');
+const awayTeamInput = document.getElementById('awayTeam');
+const kickDateInput = document.getElementById('kickDate');
+const kickTimeInput = document.getElementById('kickTime');
+const venueTzInput  = document.getElementById('venueTz');
+const leagueInput   = document.getElementById('league');
+const cityInput     = document.getElementById('city');
+const pakshaSelect  = document.getElementById('paksha');
+
+const dayInfoDiv    = document.getElementById('dayInfo');
+const teamBirdInfoDiv = document.getElementById('teamBirdInfo');
+
+const btnAutoFromName = document.getElementById('btnAutoFromName');
+const btnPredict    = document.getElementById('btnPredict');
+const waitInfo      = document.getElementById('waitInfo');
+const resultBlock   = document.getElementById('resultBlock');
+const winnerLine    = document.getElementById('winnerLine');
+const percentBarDiv = document.getElementById('percentBar');
+const drawLine      = document.getElementById('drawLine');
+const scoreLine     = document.getElementById('scoreLine');
+const detailLine    = document.getElementById('detailLine');
+
+/* ---------- STEP 1: LOAD MATCHES ---------- */
+btnLoad.addEventListener('click', async () => {
+  const key = apiKeyInput.value.trim();
+  apiErrorDiv.style.display='none';
+  apiErrorDiv.textContent='';
+  matchesWrap.style.display='none';
+  matchesTable.innerHTML='';
+
   if(!key){
-    alert("Paste your API key from api-football.com");
+    apiErrorDiv.textContent='Please paste your API key.';
+    apiErrorDiv.style.display='block';
     return;
   }
-
-  const headers = { 'x-apisports-key': key };
 
   const today = new Date();
-  const y = today.getFullYear();
-  const m = String(today.getMonth()+1).padStart(2,'0');
-  const d = String(today.getDate()).padStart(2,'0');
-  const dateStr = `${y}-${m}-${d}`;
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  const dateStr = `${yyyy}-${mm}-${dd}`;
 
-  const upcomingUrl = `https://v3.football.api-sports.io/fixtures?date=${dateStr}`;
-  const liveUrl     = `https://v3.football.api-sports.io/fixtures?live=all`;
-
-  const bodyEl = document.getElementById('matchesBody');
-  bodyEl.innerHTML = `<tr><td colspan="6">Loading from API-FOOTBALL…</td></tr>`;
-
-  let upcoming = [];
-  let live = [];
+  const url = `https://v3.football.api-sports.io/fixtures?date=${dateStr}&timezone=UTC&live=all`;
 
   try{
-    // upcoming
-    const upRes = await fetch(upcomingUrl,{headers});
-    if(!upRes.ok){
-      let msg = `HTTP ${upRes.status}`;
-      try{
-        const body = await upRes.json();
-        if(body && body.errors && Object.keys(body.errors).length){
-          msg += " – " + Object.values(body.errors).join(" / ");
-        }else if(body && body.message){
-          msg += " – " + body.message;
-        }
-      }catch(e){}
-      alert("Upcoming fixtures error – " + msg +
-            "\n\nCheck key & daily quota in api-football.com → My Access.");
-      bodyEl.innerHTML = `<tr><td colspan="6">No data (upcoming error).</td></tr>`;
-      return;
-    }
-    const upData = await upRes.json();
-    upcoming = upData.response || [];
-
-    // live (optional)
-    try{
-      const liveRes = await fetch(liveUrl,{headers});
-      if(liveRes.ok){
-        const liveData = await liveRes.json();
-        live = liveData.response || [];
-      }else{
-        console.warn("Live fixtures error:",liveRes.status);
+    const res = await fetch(url,{
+      headers:{
+        'x-apisports-key':key
       }
-    }catch(e2){
-      console.warn("Live fetch error",e2);
+    });
+    if(!res.ok){
+      throw new Error('HTTP '+res.status);
+    }
+    const data = await res.json();
+
+    if(data.errors && Object.keys(data.errors).length){
+      throw new Error('API error / quota');
     }
 
-    // merge live + upcoming, remove finished
-    const map = new Map();
-    [...live,...upcoming].forEach(f => map.set(f.fixture.id,f));
-    let fixtures = Array.from(map.values());
+    let fixtures = data.response || [];
 
-    const liveCodes = ['1H','2H','ET','BT','P','INT'];
-    const badCodes  = ['FT','AET','PEN','PST','CANC','ABD','AWD','WO'];
-
-    fixtures = fixtures.filter(f => {
-      const s = (f.fixture.status && f.fixture.status.short) || 'NS';
-      if(badCodes.includes(s)) return false; // finished / cancelled off
-      return true;
-    });
-
-    fixtures.sort((a,b) => new Date(a.fixture.date) - new Date(b.fixture.date));
+    // filter: keep only not-finished
+    const finishedCodes = ['FT','AET','PEN','CANC','ABD','AWD','WO','PST'];
+    fixtures = fixtures.filter(f => !finishedCodes.includes(f.fixture.status.short));
 
     if(!fixtures.length){
-      bodyEl.innerHTML = `<tr><td colspan="6">No LIVE / upcoming matches today.</td></tr>`;
+      apiErrorDiv.textContent='No LIVE / upcoming matches found for today.';
+      apiErrorDiv.style.display='block';
       return;
     }
 
-    bodyEl.innerHTML = '';
-    fixtures.forEach(f => {
-      const tr = document.createElement('tr');
-      const status = (f.fixture.status && f.fixture.status.short) || 'NS';
-      const isLive = liveCodes.includes(status);
+    fixtures.sort((a,b)=> new Date(a.fixture.date) - new Date(b.fixture.date));
 
-      if(isLive) tr.classList.add('live-row');
+    matchesTable.innerHTML='';
+    fixtures.forEach(fix=>{
+      const tr=document.createElement('tr');
+      tr.className='clickable';
 
-      const koDate = new Date(f.fixture.date);
-      const koStr = `${String(koDate.getDate()).padStart(2,'0')}-${String(koDate.getMonth()+1).padStart(2,'0')} ${minsToHM(f.fixture.date)}`;
+      const utcDate = new Date(fix.fixture.date); // already UTC
+      const koDate = utcDate.toISOString().slice(0,10);
+      const koTime = utcDate.toISOString().slice(11,16);
 
-      const league = (f.league && f.league.name) || '';
-      const city = (f.fixture && f.fixture.venue && f.fixture.venue.city) || '';
-      const country = (f.league && f.league.country) || '';
-      const cityCountry = [city,country].filter(Boolean).join(', ');
+      const isLive = ['1H','2H','ET','P','BT','HT'].includes(fix.fixture.status.short);
+      const cityCountry = (fix.fixture.venue.city||'') +
+        (fix.fixture.venue.city && fix.teams.home.country ? ', ':'') +
+        (fix.teams.home.country||'');
 
-      tr.innerHTML =
-        `<td>${koStr}</td>
-         <td>${f.teams.home.name}</td>
-         <td>${f.teams.away.name}</td>
-         <td>${league}</td>
-         <td>${cityCountry}</td>
-         <td>${isLive ? '<span class="dot-live"></span>LIVE' : status}</td>`;
+      tr.innerHTML = `
+        <td>${koDate} ${koTime}</td>
+        <td>${fix.teams.home.name}</td>
+        <td>${fix.teams.away.name}</td>
+        <td>${fix.league.name}</td>
+        <td>${cityCountry || '-'}</td>
+        <td>${isLive?'<span class="live-dot">●</span>LIVE':fix.fixture.status.short}</td>
+      `;
 
-      tr.addEventListener('click', () => {
-        const home = f.teams.home.name;
-        const away = f.teams.away.name;
-        document.documentElement.style.setProperty('--t1','#0ea5e9');
-        document.documentElement.style.setProperty('--t2','#22c55e');
-        document.getElementById('homeTeam').value = home;
-        document.getElementById('awayTeam').value = away;
+      tr.addEventListener('click',()=>{
+        homeTeamInput.value = fix.teams.home.name;
+        awayTeamInput.value = fix.teams.away.name;
+        kickDateInput.value = koDate;
+        kickTimeInput.value = koTime;
+        venueTzInput.value  = fix.fixture.timezone || 'UTC';
+        leagueInput.value   = fix.league.name || '';
+        cityInput.value     = cityCountry || '';
 
-        const dIso = f.fixture.date; // ISO
-        const dObj = new Date(dIso);
-        const yyyy = dObj.getFullYear();
-        const mm = String(dObj.getMonth()+1).padStart(2,'0');
-        const dd = String(dObj.getDate()).padStart(2,'0');
-        const hh = String(dObj.getHours()).padStart(2,'0');
-        const mi = String(dObj.getMinutes()).padStart(2,'0');
-        document.getElementById('kickDate').value = `${yyyy}-${mm}-${dd}`;
-        document.getElementById('kickTime').value = `${hh}:${mi}`;
-        document.getElementById('venueTz').value = f.fixture.timezone || '';
+        const autoPak = autoPakshaFromDateStr(koDate);
+        pakshaSelect.value = autoPak;
 
-        document.getElementById('resultArea').innerHTML =
-          `Match selected: <span class="team1">${home}</span> vs
-           <span class="team2">${away}</span>, kickoff ${hh}:${mi} (${f.fixture.timezone || 'venue timezone'}).
-           Now press “RUN PANCHAPAKSHI PREDICTION”.`;
-
-        window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+        updateDayInfo();
+        autoTeamBirdsFromNames();
       });
 
-      bodyEl.appendChild(tr);
+      matchesTable.appendChild(tr);
     });
 
-  }catch(e){
-    console.error(e);
-    alert("Network / API error. Check internet + key / quota.");
-    bodyEl.innerHTML = `<tr><td colspan="6">API error – see console.</td></tr>`;
+    matchesWrap.style.display='block';
+  }catch(err){
+    console.error(err);
+    apiErrorDiv.textContent='Network / API error. Check internet + key + quota.';
+    apiErrorDiv.style.display='block';
   }
+});
+
+/* ---------- DAY INFO ---------- */
+function updateDayInfo(){
+  const dateStr = kickDateInput.value;
+  if(!dateStr){
+    dayInfoDiv.textContent='Set kickoff date to see day ruling bird.';
+    return;
+  }
+  const paksha = pakshaSelect.value;
+  const d = new Date(dateStr+'T12:00:00Z');
+  const dow = d.getUTCDay(); // 0=Sunday
+  const dayBird = RULING_BIRDS[paksha][dow];
+  lastDayBird = dayBird;
+
+  const friendly = FRIENDLY_BIRDS[dayBird] || [];
+  const enemy = UNFRIENDLY_BIRDS[dayBird] || [];
+
+  dayInfoDiv.innerHTML =
+    `<span class="tag tag-info">Day bird</span>`+
+    `Ruling bird for match day: <span class="good-text">${dayBird}</span> `+
+    `• Friendly: <span class="home-text">${friendly.join(', ')||'-'}</span> `+
+    `• Enemy: <span class="bad-text">${enemy.join(', ')||'-'}</span>`;
 }
 
-/* ------------ INIT: set today date -------------- */
+/* ---------- AUTO TEAM BIRDS (LOCK) ---------- */
+function autoTeamBirdsFromNames(){
+  const homeName = homeTeamInput.value.trim();
+  const awayName = awayTeamInput.value.trim();
+  if(!homeName || !awayName){
+    teamBirdInfoDiv.textContent='Enter both team names first.';
+    return;
+  }
+  const homeBird = teamNameToBird(homeName) || 'Crow';
+  const awayBird = teamNameToBird(awayName) || 'Crow';
+  lastHomeBird = homeBird;
+  lastAwayBird = awayBird;
 
+  document.documentElement.style.setProperty('--home-main','#0ea5e9');
+  document.documentElement.style.setProperty('--away-main','#22c55e');
+
+  teamBirdInfoDiv.innerHTML =
+    `<span class="tag tag-info">Team birds (locked)</span>`+
+    `Home: <span class="home-text">${homeName}</span> → <span class="good-text">${homeBird}</span> `+
+    `• Away: <span class="away-text">${awayName}</span> → <span class="good-text">${awayBird}</span> `+
+    `<br>Birds are auto-selected from team name numerology → 27 nakshatra → bird. Manual edit is locked 🔒`;
+}
+
+btnAutoFromName.addEventListener('click', (e)=>{
+  e.preventDefault();
+  autoTeamBirdsFromNames();
+  updateDayInfo();
+});
+
+kickDateInput.addEventListener('change',()=>{
+  const autoPak = autoPakshaFromDateStr(kickDateInput.value);
+  pakshaSelect.value = autoPak;
+  updateDayInfo();
+});
+pakshaSelect.addEventListener('change', updateDayInfo);
+
+/* ---------- STEP 3: PREDICTION ---------- */
+btnPredict.addEventListener('click', (e)=>{
+  e.preventDefault();
+  runPrediction();
+});
+
+function runPrediction(){
+  const homeName = homeTeamInput.value.trim();
+  const awayName = awayTeamInput.value.trim();
+  const dateStr  = kickDateInput.value;
+  const timeStr  = kickTimeInput.value;
+
+  if(!homeName || !awayName || !dateStr || !timeStr){
+    alert('Please set team names + kickoff date + time (Step 2).');
+    return;
+  }
+
+  if(!lastHomeBird || !lastAwayBird){
+    autoTeamBirdsFromNames();
+  }
+  updateDayInfo();
+  const dayBird = lastDayBird || 'Vulture';
+
+  const kickoffMins = timeToMins(timeStr);
+  const homeActivity = getActivityForTime(kickoffMins);
+  const awayActivity = getActivityForTime((kickoffMins+20)); // small phase shift
+
+  const homeActScore = ACTIVITY_SCORES[homeActivity];
+  const awayActScore = ACTIVITY_SCORES[awayActivity];
+
+  const friendlyHome = FRIENDLY_BIRDS[dayBird] || [];
+  const enemyHome = UNFRIENDLY_BIRDS[dayBird] || [];
+
+  function synergy(bird){
+    if(bird===dayBird) return 30;
+    if(friendlyHome.includes(bird)) return 15;
+    if(enemyHome.includes(bird)) return -15;
+    return 0;
+  }
+
+  const homeSyn = synergy(lastHomeBird);
+  const awaySyn = synergy(lastAwayBird);
+
+  let homeScore = homeActScore + homeSyn;
+  let awayScore = awayActScore + awaySyn;
+
+  if(homeScore<0) homeScore=0;
+  if(awayScore<0) awayScore=0;
+
+  let total = homeScore + awayScore;
+  if(total===0){ homeScore=awayScore=1; total=2; }
+
+  let homePct = (homeScore/total)*100;
+  let awayPct = 100-homePct;
+
+  // clamp to 30–70 band (rule lock)
+  const clamp = p => p>70?70:p<30?30:p;
+  homePct = clamp(homePct);
+  awayPct = 100-homePct;
+
+  let winner='Balanced / 50-50';
+  if(homePct>awayPct+1) winner=homeName;
+  else if(awayPct>homePct+1) winner=awayName;
+
+  const diff = Math.abs(homePct-awayPct);
+  const drawYes = diff<=6 ? 'YES (very close birds)' :
+                  diff<=10? 'MAYBE (tight match)' :
+                            'NO (one bird stronger)';
+
+  let predictedScore='';
+  let winnerActivity = null;
+  if(winner===homeName){
+    winnerActivity = homeActivity;
+  }else if(winner===awayName){
+    winnerActivity = awayActivity;
+  }
+
+  if(drawYes.startsWith('YES')){
+    predictedScore = '1–1 or 2–2';
+  }else if(!winnerActivity){
+    predictedScore = '1–1 or 2–1 either side';
+  }else{
+    if(winnerActivity==='Rule'){
+      predictedScore = '3–1 or 2–0 to winner';
+    }else if(winnerActivity==='Eat'){
+      predictedScore = '2–1 or 2–0 to winner';
+    }else if(winnerActivity==='Walk'){
+      predictedScore = '1–0 or 2–1 to winner';
+    }else{
+      predictedScore = '1–0 or 0–0 (low scoring)';
+    }
+  }
+
+  // render
+  waitInfo.style.display='none';
+  resultBlock.style.display='block';
+
+  winnerLine.innerHTML =
+    `<span class="tag tag-win">Overall winner</span>`+
+    `Prediction: <span class="${winner===homeName?'home-text':winner===awayName?'away-text':'mid-text'}">${winner}</span>`;
+
+  percentBarDiv.innerHTML = makeBar(homeName,awayName,homePct,awayPct);
+
+  drawLine.innerHTML =
+    `<span class="tag tag-draw">Draw?</span>`+
+    `<b>${drawYes}</b>`;
+
+  scoreLine.innerHTML =
+    `<span class="tag tag-score">Score hint</span>`+
+    `<b>${predictedScore}</b>`;
+
+  detailLine.innerHTML =
+    `Home bird: <span class="home-text">${lastHomeBird}</span> `+
+    `(activity at KO: <span class="mid-text">${homeActivity}</span>, score ${homeActScore}) • `+
+    `Away bird: <span class="away-text">${lastAwayBird}</span> `+
+    `(activity at KO: <span class="mid-text">${awayActivity}</span>, score ${awayActScore})<br>`+
+    `Day bird: <span class="good-text">${dayBird}</span> • `+
+    `Final strength → Home ${homePct.toFixed(1)}% vs Away ${awayPct.toFixed(1)}%`;
+}
+
+function makeBar(homeName,awayName,homePct,awayPct){
+  return `
+    <div class="bar-wrap">
+      <div class="bar-home" style="width:${homePct}%;"></div>
+      <div class="bar-away" style="width:${awayPct}%;"></div>
+      <div class="bar-label">
+        <span class="home-text">${homeName} ${homePct.toFixed(1)}%</span>
+        &nbsp;•&nbsp;
+        <span class="away-text">${awayName} ${awayPct.toFixed(1)}%</span>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- INIT ---------- */
 (function init(){
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth()+1).padStart(2,'0');
   const dd = String(today.getDate()).padStart(2,'0');
-  document.getElementById('kickDate').value = `${yyyy}-${mm}-${dd}`;
+  kickDateInput.value = `${yyyy}-${mm}-${dd}`;
+  kickTimeInput.value = '12:00';
+
+  const paksha = autoPakshaFromDateStr(kickDateInput.value);
+  pakshaSelect.value = paksha;
+  updateDayInfo();
 })();
 </script>
 </body>
