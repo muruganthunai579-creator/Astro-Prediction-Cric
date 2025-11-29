@@ -101,6 +101,10 @@
       background:linear-gradient(90deg,#f97316,#fb923c);
       box-shadow:0 8px 18px rgba(249,115,22,0.45);
     }
+    .btn-27{
+      background:linear-gradient(90deg,#14b8a6,#0f766e);
+      box-shadow:0 8px 18px rgba(45,212,191,0.45);
+    }
     button:active{transform:scale(.97);}
 
     .row{display:flex;gap:8px;flex-wrap:wrap;}
@@ -328,11 +332,11 @@
     <div class="row">
       <div>
         <label>&nbsp;</label>
-        <button class="btn-auto-bird" onclick="autoBirdBoth()">Auto birds (from memory)</button>
+        <button class="btn-auto-bird" onclick="autoBirdBoth()">Auto birds (memory)</button>
       </div>
       <div>
         <label>&nbsp;</label>
-        <button class="btn-run" onclick="runPanchapakshi()">Run Panchapakshi Prediction</button>
+        <button class="btn-run" onclick="runPanchapakshi()">Run Panchapakshi prediction</button>
       </div>
     </div>
 
@@ -340,6 +344,57 @@
       <div id="dayInfo" class="info"></div>
       <div id="predictionSummary" class="result-line"></div>
     </div>
+  </div>
+
+  <!-- STEP 3 – 27 NAKSHATRA → AUTO TEAM BIRDS -->
+  <div class="card">
+    <h2>Step 3 · Teams · 27 Nakshatra → Bird (11 players)</h2>
+    <div class="info">
+      Optional setup – use <strong>once per team</strong>.  
+      Enter 11 players DOB for each side → click CALC.  
+      Site finds majority bird from 27-nakshatra table and:
+      <strong>sets Home / Away bird + saves in memory</strong> for future matches.
+    </div>
+
+    <div class="row">
+      <!-- HOME TEAM PLAYERS -->
+      <div>
+        <label>Home team – 11 players (DOB)</label>
+        <table>
+          <thead>
+          <tr><th>#</th><th>Name</th><th>DOB</th></tr>
+          </thead>
+          <tbody>
+          <!-- rows 1–11 -->
+          <script>
+            // we will fill rows via JS later (after closing html)
+          </script>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- AWAY TEAM PLAYERS -->
+      <div>
+        <label>Away team – 11 players (DOB)</label>
+        <table>
+          <thead>
+          <tr><th>#</th><th>Name</th><th>DOB</th></tr>
+          </thead>
+          <tbody>
+          <!-- rows via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:6px;">
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-27" onclick="calcTeamBirds27()">Calc team birds (27 nakshatra)</button>
+      </div>
+    </div>
+
+    <div id="team27Info" class="info" style="margin-top:6px;"></div>
   </div>
 </div>
 
@@ -405,6 +460,15 @@ const ACTIVITY_CYCLES = {
   krishna_day:['Eat','Die','Sleep','Rule','Walk'],
   krishna_night:['Eat','Sleep','Walk','Die','Rule']
 };
+
+/* 27 NAKSHATRA → BIRD TABLE (from your cricket engine) */
+const PLAYER_NAK_BIRDS = [
+  'Peacock','Peacock','Peacock','Peacock','Peacock',
+  'Cock','Cock','Cock','Cock','Cock','Cock',
+  'Crow','Crow','Crow','Crow','Crow',
+  'Owl','Owl','Owl','Owl','Owl',
+  'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture'
+];
 
 /* Helpers */
 
@@ -555,33 +619,8 @@ function autoBirdForTeam(teamName,inputId){
   if(!key) return;
 
   let bird=teamBirdStore[key];
+  if(!bird) return; // 27-nakshatra will set it later
 
-  const prettyBird = name=>{
-    const n=name.trim().toLowerCase();
-    if(n==='vulture') return 'Vulture';
-    if(n==='owl') return 'Owl';
-    if(n==='crow') return 'Crow';
-    if(n==='cock') return 'Cock';
-    if(n==='peacock') return 'Peacock';
-    return null;
-  };
-
-  if(!bird){
-    const ans=prompt(
-      `Set Panchapakshi bird for team "${teamName}" (Vulture/Owl/Crow/Cock/Peacock):`
-    );
-    if(!ans) return;
-    const pb=prettyBird(ans);
-    if(!pb){
-      alert("Invalid bird. Use only: Vulture, Owl, Crow, Cock, Peacock.");
-      return;
-    }
-    bird=pb;
-    teamBirdStore[key]=bird;
-    saveBirdStore();
-  }
-
-  // set dropdown if option exists
   Array.from(sel.options).forEach(o=>{
     if(o.value===bird) sel.value=bird;
   });
@@ -646,12 +685,9 @@ function renderMatches(allFixtures){
     .filter(f=>{
       const s=f.fixture.status.short;
       const ts=f.fixture.timestamp;
-      // live
-      if(liveStatuses.includes(s)) return true;
-      // upcoming today only
-      if((s==='NS'||s==='TBD') && ts>=now) return true;
-      // others (FT, cancelled, etc) remove
-      return false;
+      if(liveStatuses.includes(s)) return true;          // LIVE
+      if((s==='NS'||s==='TBD') && ts>=now) return true;  // upcoming today
+      return false;                                     // remove finished
     })
     .sort((a,b)=>a.fixture.timestamp-b.fixture.timestamp);
 
@@ -731,9 +767,8 @@ function fillStep2FromFixture(fix){
   document.getElementById('paksha').value = paksha;
   updateDayInfo();
 
-  // 🔥 Auto birds from memory (prompt first time only)
-  autoBirdForTeam(home,'homeBird');
-  autoBirdForTeam(away,'awayBird');
+  // auto birds from memory if already saved from 27-nakshatra setup
+  autoBirdBoth();
 }
 
 /* ---------------
@@ -767,16 +802,16 @@ function runPanchapakshi(){
     return;
   }
   if(!homeBird || !awayBird){
-    alert("Select both team birds (or use Auto Birds).");
+    alert("Select both team birds (or use 27-nakshatra calc).");
     return;
   }
 
-  const matchDate=new Date(dateStr+"T12:00:00Z"); // for weekday
-  const dayIdx=matchDate.getUTCDay(); // 0=Sun
+  const matchDate=new Date(dateStr+"T12:00:00Z");
+  const dayIdx=matchDate.getUTCDay();
   updateDayInfo();
 
   const startMins=timeToMins(timeStr);
-  const endMins=startMins + 120; // 120 mins window (approx football)
+  const endMins=startMins + 120; // 120 minutes window
 
   const hScore=integrateBirdScore(homeBird,startMins,endMins,dayIdx,paksha);
   const aScore=integrateBirdScore(awayBird,startMins,endMins,dayIdx,paksha);
@@ -785,7 +820,6 @@ function runPanchapakshi(){
   let pHome=(hScore.totalScore/total)*100;
   let pAway=100-pHome;
 
-  // clamp little – but still pure Panchapakshi
   const clamp=p=>{
     if(p>75)return 75;
     if(p<25)return 25;
@@ -799,7 +833,7 @@ function runPanchapakshi(){
   else if(pAway>pHome+1) winner=away;
 
   const diff=Math.abs(pHome-pAway);
-  const drawYes = diff<=4; // <=4% difference → Draw Yes
+  const drawYes = diff<=4; // <=4% → draw yes
 
   const barHtml = makeBar(pHome,pAway,home,away);
 
@@ -813,14 +847,14 @@ function runPanchapakshi(){
   }
 
   const drawLine =
-    `Draw (Yes / No): <strong>${drawYes ? 'YES – very tight energy' : 'NO – one team has clear edge'}</strong>`;
+    `Draw (Yes / No): <strong>${drawYes ? 'YES – very tight energy' : 'NO – one side has edge'}</strong>`;
 
   document.getElementById('predictionSummary').innerHTML =
     `<span class="tag tag-win">Panchapakshi Result</span><br>`+
     winLine+`<br>`+
     barHtml+`<br>`+
     drawLine+`<br>`+
-    `<span class="info"><strong>Engine:</strong> Pure Panchapakshi only (Rule 100 · Eat 80 · Walk 50 · Sleep 30 · Die 0). No numerology, no extra methods.</span>`;
+    `<span class="info"><strong>Engine:</strong> Pure Panchapakshi only (Rule 100 · Eat 80 · Walk 50 · Sleep 30 · Die 0).</span>`;
 }
 
 /* Day ruling info */
@@ -842,10 +876,124 @@ function updateDayInfo(){
     `(Paksha: ${paksha.charAt(0).toUpperCase()+paksha.slice(1)})`;
 }
 
-/* INIT – auto paksha + load DB */
+/* 27 NAKSHATRA HELPERS */
+
+function dayOfYearFromDOB(dobStr){
+  if(!dobStr) return null;
+  const d=new Date(dobStr);
+  if(isNaN(d)) return null;
+  const start=new Date(d.getFullYear(),0,0);
+  const diff=d-start;
+  const oneDay=1000*60*60*24;
+  return Math.floor(diff/oneDay);
+}
+
+function getTeamPlayersBasic(prefix){
+  const arr=[];
+  for(let i=1;i<=11;i++){
+    const name=document.getElementById(`${prefix}_name_${i}`).value.trim();
+    const dob=document.getElementById(`${prefix}_dob_${i}`).value;
+    if(name || dob){
+      arr.push({index:i,name:name||`Player ${i}`,dob});
+    }
+  }
+  return arr;
+}
+
+function calcTeamBirdFromPlayers(players){
+  let birdCount={Vulture:0,Owl:0,Crow:0,Cock:0,Peacock:0};
+  let lines=[];
+  players.forEach(p=>{
+    const dayNo=dayOfYearFromDOB(p.dob);
+    if(!dayNo){
+      lines.push(`${p.index}. ${p.name}: DOB not set`);
+      return;
+    }
+    const idx=(dayNo-1)%27;
+    const starNo=idx+1;
+    const bird=PLAYER_NAK_BIRDS[idx];
+    birdCount[bird]=(birdCount[bird]||0)+1;
+    lines.push(`${p.index}. ${p.name}: ${p.dob} → Star ${starNo} → ${bird}`);
+  });
+  let bestBird=null,max=0;
+  Object.keys(birdCount).forEach(b=>{
+    if(birdCount[b]>max){
+      max=birdCount[b];
+      bestBird=b;
+    }
+  });
+  return {bestBird,lines,birdCount};
+}
+
+function calcTeamBirds27(){
+  const homeTeam=document.getElementById('homeTeam').value.trim()||'Home';
+  const awayTeam=document.getElementById('awayTeam').value.trim()||'Away';
+
+  const homePlayers=getTeamPlayersBasic('h');
+  const awayPlayers=getTeamPlayersBasic('a');
+
+  if(!homePlayers.length && !awayPlayers.length){
+    alert("Enter at least one player DOB.");
+    return;
+  }
+
+  const hRes=calcTeamBirdFromPlayers(homePlayers);
+  const aRes=calcTeamBirdFromPlayers(awayPlayers);
+
+  let msg='';
+
+  if(hRes.bestBird){
+    document.getElementById('homeBird').value=hRes.bestBird;
+    const key=homeTeam.toLowerCase();
+    teamBirdStore[key]=hRes.bestBird;
+    msg+=`Home ${homeTeam}: team bird = ${hRes.bestBird} (27 stars)\\n`;
+  }else{
+    msg+='Home team bird not determined (no DOB).\\n';
+  }
+
+  if(aRes.bestBird){
+    document.getElementById('awayBird').value=aRes.bestBird;
+    const key=awayTeam.toLowerCase();
+    teamBirdStore[key]=aRes.bestBird;
+    msg+=`Away ${awayTeam}: team bird = ${aRes.bestBird} (27 stars)\\n`;
+  }else{
+    msg+='Away team bird not determined (no DOB).\\n';
+  }
+
+  saveBirdStore();
+
+  const div=document.getElementById('team27Info');
+  div.innerHTML =
+    `<strong>27 Nakshatra result:</strong><br>`+
+    msg.replace(/\\n/g,'<br>');
+
+  alert(msg);
+}
+
+/* INIT – build tables, auto paksha + load DB */
 
 (function init(){
   loadBirdStore();
+
+  // build 11 rows for home & away tables
+  const tables=document.querySelectorAll('.card table tbody');
+  const homeBody=tables[0];
+  const awayBody=tables[1];
+  for(let i=1;i<=11;i++){
+    const trH=document.createElement('tr');
+    trH.innerHTML=
+      `<td>${i===1?'1 C':i}</td>
+       <td><input id="h_name_${i}" placeholder="Player ${i===1?'(C)':i}"></td>
+       <td><input id="h_dob_${i}" type="date"></td>`;
+    homeBody.appendChild(trH);
+
+    const trA=document.createElement('tr');
+    trA.innerHTML=
+      `<td>${i===1?'1 C':i}</td>
+       <td><input id="a_name_${i}" placeholder="Player ${i===1?'(C)':i}"></td>
+       <td><input id="a_dob_${i}" type="date"></td>`;
+    awayBody.appendChild(trA);
+  }
 
   const today=new Date();
   const y=today.getFullYear();
