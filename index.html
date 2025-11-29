@@ -97,6 +97,10 @@
       background:linear-gradient(90deg,#0ea5e9,#6366f1);
       box-shadow:0 8px 18px rgba(59,130,246,0.45);
     }
+    .btn-auto-bird{
+      background:linear-gradient(90deg,#f97316,#fb923c);
+      box-shadow:0 8px 18px rgba(249,115,22,0.45);
+    }
     button:active{transform:scale(.97);}
 
     .row{display:flex;gap:8px;flex-wrap:wrap;}
@@ -224,7 +228,7 @@
     <div class="info">
       <span class="tag tag-api">Info</span>
       API key is used only in your browser.  
-      Shows **today LIVE + upcoming** fixtures. Finished matches are removed.
+      Shows <strong>today LIVE + upcoming</strong> fixtures. Finished matches are removed.
       Red <span style="color:#ef4444;">● LIVE</span> = match currently in play.  
       Click a row to send the match into Step 2.
     </div>
@@ -322,7 +326,11 @@
     </div>
 
     <div class="row">
-      <div style="flex:1;">
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-auto-bird" onclick="autoBirdBoth()">Auto birds (from memory)</button>
+      </div>
+      <div>
         <label>&nbsp;</label>
         <button class="btn-run" onclick="runPanchapakshi()">Run Panchapakshi Prediction</button>
       </div>
@@ -519,6 +527,73 @@ function integrateBirdScore(bird,startMins,endMins,dayIdx,pakshaType){
   return {totalScore,totalDur};
 }
 
+/* ------------------------
+   TEAM BIRD MEMORY (AUTO)
+   ------------------------ */
+
+let teamBirdStore = {};
+
+function loadBirdStore(){
+  try{
+    const raw=localStorage.getItem('astroFbTeamBirds');
+    if(raw) teamBirdStore = JSON.parse(raw) || {};
+  }catch(e){
+    teamBirdStore = {};
+  }
+}
+function saveBirdStore(){
+  try{
+    localStorage.setItem('astroFbTeamBirds',JSON.stringify(teamBirdStore));
+  }catch(e){}
+}
+
+function autoBirdForTeam(teamName,inputId){
+  const sel=document.getElementById(inputId);
+  if(!teamName || !sel) return;
+
+  const key=teamName.trim().toLowerCase();
+  if(!key) return;
+
+  let bird=teamBirdStore[key];
+
+  const prettyBird = name=>{
+    const n=name.trim().toLowerCase();
+    if(n==='vulture') return 'Vulture';
+    if(n==='owl') return 'Owl';
+    if(n==='crow') return 'Crow';
+    if(n==='cock') return 'Cock';
+    if(n==='peacock') return 'Peacock';
+    return null;
+  };
+
+  if(!bird){
+    const ans=prompt(
+      `Set Panchapakshi bird for team "${teamName}" (Vulture/Owl/Crow/Cock/Peacock):`
+    );
+    if(!ans) return;
+    const pb=prettyBird(ans);
+    if(!pb){
+      alert("Invalid bird. Use only: Vulture, Owl, Crow, Cock, Peacock.");
+      return;
+    }
+    bird=pb;
+    teamBirdStore[key]=bird;
+    saveBirdStore();
+  }
+
+  // set dropdown if option exists
+  Array.from(sel.options).forEach(o=>{
+    if(o.value===bird) sel.value=bird;
+  });
+}
+
+function autoBirdBoth(){
+  const home=document.getElementById('homeTeam').value;
+  const away=document.getElementById('awayTeam').value;
+  autoBirdForTeam(home,'homeBird');
+  autoBirdForTeam(away,'awayBird');
+}
+
 /* ---------------------
    API-FOOTBALL – LOAD
    --------------------- */
@@ -603,7 +678,7 @@ function renderMatches(allFixtures){
     awayCell.textContent=f.teams.away.name;
 
     const leagueCell=document.createElement('td');
-    leagueCell.textContent=f.league.name||'';
+    leagueCell.textContent=f.league.name||''
 
     const cityCell=document.createElement('td');
     const city=f.fixture.venue.city||'';
@@ -632,8 +707,11 @@ function renderMatches(allFixtures){
 function fillStep2FromFixture(fix){
   const dt=new Date(fix.fixture.date);
 
-  document.getElementById('homeTeam').value = fix.teams.home.name || '';
-  document.getElementById('awayTeam').value = fix.teams.away.name || '';
+  const home = fix.teams.home.name || '';
+  const away = fix.teams.away.name || '';
+
+  document.getElementById('homeTeam').value = home;
+  document.getElementById('awayTeam').value = away;
   document.getElementById('leagueName').value = fix.league.name || '';
 
   const city=fix.fixture.venue.city||'';
@@ -652,6 +730,10 @@ function fillStep2FromFixture(fix){
   const paksha = autoPakshaFromDateStr(dateStr);
   document.getElementById('paksha').value = paksha;
   updateDayInfo();
+
+  // 🔥 Auto birds from memory (prompt first time only)
+  autoBirdForTeam(home,'homeBird');
+  autoBirdForTeam(away,'awayBird');
 }
 
 /* ---------------
@@ -685,7 +767,7 @@ function runPanchapakshi(){
     return;
   }
   if(!homeBird || !awayBird){
-    alert("Select both team birds.");
+    alert("Select both team birds (or use Auto Birds).");
     return;
   }
 
@@ -703,7 +785,7 @@ function runPanchapakshi(){
   let pHome=(hScore.totalScore/total)*100;
   let pAway=100-pHome;
 
-  // clamp little – not crazy %, but still pure Panchapakshi
+  // clamp little – but still pure Panchapakshi
   const clamp=p=>{
     if(p>75)return 75;
     if(p<25)return 25;
@@ -760,9 +842,11 @@ function updateDayInfo(){
     `(Paksha: ${paksha.charAt(0).toUpperCase()+paksha.slice(1)})`;
 }
 
-/* INIT – auto paksha today */
+/* INIT – auto paksha + load DB */
 
 (function init(){
+  loadBirdStore();
+
   const today=new Date();
   const y=today.getFullYear();
   const m=String(today.getMonth()+1).padStart(2,'0');
