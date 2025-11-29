@@ -2,1346 +2,550 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ASTRO Cricket Predictor</title>
+  <title>Live Football + Astro Prediction</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
     :root{
-      --team1-main:#0ea5e9;
-      --team2-main:#22c55e;
+      --bg:#020617;
+      --card:#0b1120;
+      --accent:#22c55e;
+      --accent-soft:rgba(34,197,94,0.2);
+      --border:#1f2937;
+      --text:#e5e7eb;
+      --text-soft:#9ca3af;
     }
-
+    *{box-sizing:border-box;}
     body{
       margin:0;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:#ffffff;
-      color:#111827;
+      background:radial-gradient(circle at top,#1f2937 0,#020617 45%,#020617 100%);
+      color:var(--text);
     }
-    .wrap{max-width:900px;margin:0 auto;padding:12px;}
+    .wrap{max-width:960px;margin:0 auto;padding:14px 10px 32px;}
     h1{
-      font-size:15px;
+      font-size:17px;
       text-transform:uppercase;
       letter-spacing:0.3em;
-      color:#6b7280;
-      margin-bottom:6px;
+      color:#9ca3af;
+      margin:4px 0 2px;
     }
-
-    .card{
-      background:#f3f4f6;
-      border:1px solid #e5e7eb;
-      border-radius:16px;
-      padding:12px;
+    .tagline{
+      font-size:11px;
+      color:var(--text-soft);
       margin-bottom:12px;
-      box-shadow:0 10px 25px rgba(15,23,42,0.08);
     }
-
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+      gap:10px;
+    }
+    @media(max-width:768px){
+      .grid{grid-template-columns:minmax(0,1fr);}
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px;
+      box-shadow:0 18px 40px rgba(15,23,42,0.9);
+    }
+    .title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      color:var(--text-soft);
+      margin-bottom:6px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .pill{
+      font-size:10px;
+      padding:2px 7px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--text-soft);
+    }
     label{
       display:block;
       font-size:10px;
       text-transform:uppercase;
-      letter-spacing:0.18em;
-      color:#9ca3af;
+      letter-spacing:0.13em;
+      color:var(--text-soft);
       margin-bottom:3px;
     }
-    input,select{
+    input,select,textarea{
       width:100%;
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid #d1d5db;
-      background:#ffffff;
-      color:#111827;
-      font-size:13px;
-      margin-bottom:10px;
-      box-sizing:border-box;
-    }
-    input:focus,select:focus{
+      padding:7px 9px;
+      border-radius:9px;
+      border:1px solid var(--border);
+      background:#020617;
+      color:var(--text);
+      font-size:12px;
+      margin-bottom:7px;
       outline:none;
-      border-color:#0ea5e9;
-      box-shadow:0 0 0 1px #0ea5e9;
     }
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(34,197,94,0.4);
+    }
+    .row{display:flex;gap:6px;flex-wrap:wrap;}
+    .row>div{flex:1;}
     button{
-      width:100%;
-      padding:9px;
       border:none;
       border-radius:999px;
-      text-transform:uppercase;
-      letter-spacing:0.18em;
+      padding:7px 12px;
       font-size:11px;
-      font-weight:600;
-      color:#ffffff;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
       cursor:pointer;
-      margin-bottom:4px;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
     }
-    .btn-team1{
-      background:linear-gradient(90deg,var(--team1-main),#fb923c);
-      box-shadow:0 8px 18px rgba(56,189,248,0.35);
-    }
-    .btn-team2{
-      background:linear-gradient(90deg,var(--team2-main),#fb374b);
-      box-shadow:0 8px 18px rgba(248,113,113,0.45);
-    }
-    .btn-danger{
-      background:linear-gradient(90deg,#f97316,#ef4444);
-      box-shadow:0 8px 18px rgba(248,113,113,0.45);
-    }
-    button:active{transform:scale(.97);}
-    .row{display:flex;gap:8px;flex-wrap:wrap;}
-    .row>div{flex:1;}
-
-    .title-sm{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.22em;
-      color:#6b7280;
-      margin-bottom:6px;
-    }
-    .tiny{
-      font-size:11px;
-      color:#6b7280;
-      margin-top:6px;
-      line-height:1.6;
-    }
-
-    table{
+    .btn-main{
+      background:var(--accent);
+      color:#022c22;
+      box-shadow:0 10px 24px rgba(34,197,94,0.45);
       width:100%;
-      border-collapse:collapse;
-      font-size:11px;
+      justify-content:center;
+      margin-top:6px;
+    }
+    .btn-ghost{
+      background:#020617;
+      border:1px solid var(--border);
+      color:var(--text-soft);
+      padding-inline:10px;
+    }
+    button:active{transform:scale(.98);}
+    .match-list{
+      max-height:380px;
+      overflow-y:auto;
       margin-top:4px;
     }
-    th,td{
-      border:1px solid #e5e7eb;
-      padding:4px 6px;
-      text-align:left;
+    .match-card{
+      border-radius:10px;
+      border:1px solid var(--border);
+      padding:7px 8px;
+      margin-bottom:5px;
+      background:#020617;
     }
-    th{
-      background:#e5f3ff;
-      color:#374151;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      font-size:10px;
+    .match-row1{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
     }
-    tr:nth-child(even){background:#ffffff;}
-    tr:nth-child(odd){background:#f9fafb;}
-
-    .tag{
+    .match-teams{
       font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:0.12em;
+    }
+    .match-status{
+      font-size:10px;
+      padding:1px 6px;
+      border-radius:999px;
+      border:1px solid #4b5563;
+      color:#e5e7eb;
+    }
+    .live{background:#dc2626;border-color:#fecaca;}
+    .upcoming{background:#1e3a8a;border-color:#bfdbfe;}
+    .league{
+      font-size:10px;
+      color:var(--text-soft);
+      margin-top:4px;
+    }
+    .match-sub{
+      font-size:10px;
+      color:var(--text-soft);
+      margin-top:3px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:4px;
+    }
+    .small-btn{
+      border-radius:999px;
+      padding:3px 7px;
+      font-size:10px;
+      border:1px solid var(--accent);
+      background:var(--accent-soft);
+      color:var(--accent);
+    }
+    .log{
+      font-size:10px;
+      color:var(--text-soft);
+      margin-top:6px;
+      white-space:pre-wrap;
+    }
+    .badge-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      margin-top:6px;
+    }
+    .badge{
       font-size:10px;
       padding:2px 8px;
       border-radius:999px;
-      display:inline-block;
-      margin-right:6px;
+      border:1px solid rgba(148,163,184,0.4);
+      color:var(--text-soft);
     }
-    .tag-toss{background:#dbeafe;color:#1d4ed8;}
-    .tag-match{background:#bbf7d0;color:#166534;}
-    .tag-flow{background:#e0f2fe;color:#075985;}
-    .tag-overall{background:#fee2a7;color:#92400e;}
-
-    .winner-name{font-weight:700;color:#16a34a;}
-    .team1-text{color:var(--team1-main);font-weight:600;}
-    .team2-text{color:var(--team2-main);font-weight:600;}
-
-    .good-text{color:#22c55e;font-weight:600;}
-    .excellent-text{color:#15803d;font-weight:700;}
-    .weak-text{color:#ef4444;font-weight:600;}
-
-    .player-line{
-      font-size:11.5px;
-      line-height:1.5;
+    .badge-strong{
+      border-color:rgba(34,197,94,0.7);
+      background:var(--accent-soft);
+      color:var(--accent);
     }
-
-    .bar-wrap{
-      width:100%;
-      height:14px;
-      border-radius:999px;
-      overflow:hidden;
-      background:#e5e7eb;
-      border:1px solid #d1d5db;
-      margin:6px 0 4px 0;
-      display:flex;
-      position:relative;
-    }
-    .bar-fill{height:100%;}
-    .bar-t1{background:linear-gradient(90deg,var(--team1-main),#38bdf8);}
-    .bar-t2{background:linear-gradient(90deg,var(--team2-main),#22c55e);}
-    .bar-midline{
-      position:absolute;
-      top:-1px;
-      bottom:-1px;
-      /* left p1% via JS */
-      width:2px;
-      background:#f97316;
-      opacity:0.9;
-      pointer-events:none;
-    }
-    .bar-label{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      font-size:10px;
-      font-weight:600;
-      white-space:nowrap;
-      color:#ffffff;
-      text-shadow:0 1px 2px rgba(0,0,0,0.6);
-    }
-    .bar-label span{
-      color:#ffffff !important;
-    }
-
-    .summary-team-title{
-      font-size:12px;
-      font-weight:700;
-      color:#111827;
-      margin-top:8px;
-    }
-    .summary-line{
-      font-size:11.5px;
-      margin:1px 0;
-    }
-
-    .flow-t1{background:#e0f2fe;}
-    .flow-t2{background:#dcfce7;}
-    .flow-even{background:#f9fafb;}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>ASTRO CRICKET PREDICTOR</h1>
-
-  <!-- MATCH INPUT -->
-  <div class="card">
-    <div class="title-sm">Match Input</div>
-    <div class="row">
-      <div>
-        <label>Team 1</label>
-        <input id="team1" placeholder="Team 1" />
-      </div>
-      <div>
-        <label>Team 2</label>
-        <input id="team2" placeholder="Team 2" />
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Date</label>
-        <input id="date" type="date" />
-      </div>
-      <div>
-        <label>Match Format</label>
-        <select id="format">
-          <option value="t10">T10</option>
-          <option value="t20" selected>T20</option>
-          <option value="odi">ODI</option>
-          <option value="test">Test Match</option>
-        </select>
-      </div>
-      <div>
-        <label>Paksha</label>
-        <select id="paksha">
-          <option value="shukla">Shukla</option>
-          <option value="krishna">Krishna</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Start Time (IST)</label>
-        <input id="startTime" type="time" value="14:30" />
-      </div>
-      <div>
-        <label>End Time (IST)</label>
-        <input id="endTime" type="time" value="18:00" />
-      </div>
-      <div>
-        <label>Toss Time (IST)</label>
-        <input id="tossTime" type="time" value="14:00" />
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Venue</label>
-        <select id="loc"></select>
-      </div>
-      <div>
-        <label>Team 1 Bird</label>
-        <select id="bird1">
-          <option value="">Select</option>
-          <option>Vulture</option>
-          <option>Owl</option>
-          <option>Crow</option>
-          <option>Cock</option>
-          <option>Peacock</option>
-        </select>
-      </div>
-      <div>
-        <label>Team 2 Bird</label>
-        <select id="bird2">
-          <option value="">Select</option>
-          <option>Vulture</option>
-          <option>Owl</option>
-          <option>Crow</option>
-          <option>Cock</option>
-          <option>Peacock</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Toss decision -->
-    <div class="row">
-      <div>
-        <label>Toss Decision (If Win)</label>
-        <select id="tossDecision">
-          <option value="bat">Bat First</option>
-          <option value="bowl">Bowl / Chase</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>&nbsp;</label>
-        <button class="btn-team1" onclick="autoSuggestBirds()">AUTO BIRD (11 PLAYERS)</button>
-      </div>
-      <div>
-        <label>&nbsp;</label>
-        <button class="btn-team2" onclick="handlePredict()">PREDICT</button>
-      </div>
-    </div>
-
-    <div id="matchFriendlyInfo" class="tiny"></div>
-    <div id="jerseyInfo" class="tiny"></div>
+  <h1>ASTRO FOOTBALL PREDICTOR</h1>
+  <div class="tagline">
+    Live football matches → click match → teams auto-fill → run your prediction.
   </div>
 
-  <!-- PANCHAPAKSHI – TEAM PLAYERS (DOB → BIRD) -->
-  <div class="card">
-    <div class="title-sm">Panchapakshi – Team Players (DOB → Bird)</div>
-
-    <div class="row">
-      <!-- Team 1 -->
-      <div>
-        <label>Team 1 – 11 Players</label>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>DOB</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1 C</td>
-              <td><input id="t1_name_1" placeholder="Team 1 Captain"></td>
-              <td><input id="t1_dob_1" type="date"></td>
-            </tr>
-            <tr><td>2</td><td><input id="t1_name_2" placeholder="Player 2"></td><td><input id="t1_dob_2" type="date"></td></tr>
-            <tr><td>3</td><td><input id="t1_name_3" placeholder="Player 3"></td><td><input id="t1_dob_3" type="date"></td></tr>
-            <tr><td>4</td><td><input id="t1_name_4" placeholder="Player 4"></td><td><input id="t1_dob_4" type="date"></td></tr>
-            <tr><td>5</td><td><input id="t1_name_5" placeholder="Player 5"></td><td><input id="t1_dob_5" type="date"></td></tr>
-            <tr><td>6</td><td><input id="t1_name_6" placeholder="Player 6"></td><td><input id="t1_dob_6" type="date"></td></tr>
-            <tr><td>7</td><td><input id="t1_name_7" placeholder="Player 7"></td><td><input id="t1_dob_7" type="date"></td></tr>
-            <tr><td>8</td><td><input id="t1_name_8" placeholder="Player 8"></td><td><input id="t1_dob_8" type="date"></td></tr>
-            <tr><td>9</td><td><input id="t1_name_9" placeholder="Player 9"></td><td><input id="t1_dob_9" type="date"></td></tr>
-            <tr><td>10</td><td><input id="t1_name_10" placeholder="Player 10"></td><td><input id="t1_dob_10" type="date"></td></tr>
-            <tr><td>11</td><td><input id="t1_name_11" placeholder="Player 11"></td><td><input id="t1_dob_11" type="date"></td></tr>
-          </tbody>
-        </table>
+  <div class="grid">
+    <!-- LEFT: LIVE MATCHES -->
+    <section class="card">
+      <div class="title">
+        <span>Live / Today Matches</span>
+        <span class="pill">Step 1 · Choose Match</span>
       </div>
 
-      <!-- Team 2 -->
-      <div>
-        <label>Team 2 – 11 Players</label>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>DOB</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1 C</td>
-              <td><input id="t2_name_1" placeholder="Team 2 Captain"></td>
-              <td><input id="t2_dob_1" type="date"></td>
-            </tr>
-            <tr><td>2</td><td><input id="t2_name_2" placeholder="Player 2"></td><td><input id="t2_dob_2" type="date"></td></tr>
-            <tr><td>3</td><td><input id="t2_name_3" placeholder="Player 3"></td><td><input id="t2_dob_3" type="date"></td></tr>
-            <tr><td>4</td><td><input id="t2_name_4" placeholder="Player 4"></td><td><input id="t2_dob_4" type="date"></td></tr>
-            <tr><td>5</td><td><input id="t2_name_5" placeholder="Player 5"></td><td><input id="t2_dob_5" type="date"></td></tr>
-            <tr><td>6</td><td><input id="t2_name_6" placeholder="Player 6"></td><td><input id="t2_dob_6" type="date"></td></tr>
-            <tr><td>7</td><td><input id="t2_name_7" placeholder="Player 7"></td><td><input id="t2_dob_7" type="date"></td></tr>
-            <tr><td>8</td><td><input id="t2_name_8" placeholder="Player 8"></td><td><input id="t2_dob_8" type="date"></td></tr>
-            <tr><td>9</td><td><input id="t2_name_9" placeholder="Player 9"></td><td><input id="t2_dob_9" type="date"></td></tr>
-            <tr><td>10</td><td><input id="t2_name_10" placeholder="Player 10"></td><td><input id="t2_dob_10" type="date"></td></tr>
-            <tr><td>11</td><td><input id="t2_name_11" placeholder="Player 11"></td><td><input id="t2_dob_11" type="date"></td></tr>
-          </tbody>
-        </table>
+      <label for="apiKey">API-Football Key (free)</label>
+      <input id="apiKey" placeholder="Paste your API key here" />
+
+      <div class="row">
+        <div>
+          <label for="countryFilter">Country (optional)</label>
+          <input id="countryFilter" placeholder="e.g. England, Spain, India" />
+        </div>
+        <div>
+          <label for="leagueFilter">League (optional)</label>
+          <input id="leagueFilter" placeholder="e.g. Premier League, La Liga" />
+        </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div>
-        <label>&nbsp;</label>
-        <button class="btn-team1" onclick="calcPlayersPanchapakshi()">Calc Players (Panchapakshi)</button>
+      <button class="btn-main" id="btnLoad">🔄 Load Live / Today Matches</button>
+
+      <div id="matchList" class="match-list">
+        <!-- matches will render here -->
       </div>
-    </div>
 
-    <div id="playersResult" class="tiny"></div>
-  </div>
-
-  <!-- TEAM DATABASE CARD -->
-  <div class="card">
-    <div class="title-sm">Team Database – Save / Load / Delete</div>
-
-    <div class="row" style="margin-top:4px;">
-      <div>
-        <label>Team 1 DB</label>
-        <button class="btn-team1" onclick="saveTeam('t1')">Save Team 1</button>
-        <button class="btn-team1" style="margin-top:4px;" onclick="loadTeam('t1')">Load Team 1</button>
+      <div id="liveLog" class="log">
+        Paste API key and click “Load Live / Today Matches”.
       </div>
-      <div>
-        <label>Team 2 DB</label>
-        <button class="btn-team2" onclick="saveTeam('t2')">Save Team 2</button>
-        <button class="btn-team2" style="margin-top:4px;" onclick="loadTeam('t2')">Load Team 2</button>
+    </section>
+
+    <!-- RIGHT: PREDICTION INPUT + RESULT -->
+    <section class="card">
+      <div class="title">
+        <span>Match Prediction</span>
+        <span class="pill">Step 2 · Run Engine</span>
       </div>
-    </div>
 
-    <div class="row" style="margin-top:6px;">
-      <div>
-        <label>Delete / Clear</label>
-        <button class="btn-danger" onclick="deleteTeam()">Delete a Team</button>
-        <button class="btn-danger" style="margin-top:4px;" onclick="clearDB()">Clear All DB</button>
+      <div class="row">
+        <div>
+          <label>Team 1</label>
+          <input id="team1" placeholder="Home team" />
+        </div>
+        <div>
+          <label>Team 2</label>
+          <input id="team2" placeholder="Away team" />
+        </div>
       </div>
-    </div>
 
-    <div id="dbInfo" class="tiny" style="margin-top:8px;"></div>
-  </div>
+      <div class="row">
+        <div>
+          <label>Kickoff Date</label>
+          <input id="matchDate" type="date" />
+        </div>
+        <div>
+          <label>Kickoff Time</label>
+          <input id="matchTime" type="time" />
+        </div>
+      </div>
 
-  <!-- SUMMARY -->
-  <div id="summaryCard" class="card" style="display:none;">
-    <div class="title-sm">Astro Match Summary – Players + Flow</div>
+      <div class="row">
+        <div>
+          <label>League</label>
+          <input id="league" placeholder="League / Competition" />
+        </div>
+        <div>
+          <label>Stadium / City</label>
+          <input id="stadium" placeholder="Stadium / City" />
+        </div>
+      </div>
 
-    <div id="tossWinnerLine" class="tiny"></div>
-    <div id="tossDetailLine" class="tiny"></div>
+      <div class="row">
+        <div>
+          <label>Team 1 Jersey</label>
+          <input id="jersey1" placeholder="Blue / Red / White…" />
+        </div>
+        <div>
+          <label>Team 2 Jersey</label>
+          <input id="jersey2" placeholder="Green / Yellow…" />
+        </div>
+      </div>
 
-    <div id="team1Summary" class="tiny"></div>
-    <div id="team2Summary" class="tiny"></div>
+      <label for="notes">Extra notes</label>
+      <textarea id="notes" placeholder="Derby, knockout, rotation, injuries…"></textarea>
 
-    <div id="playersLine" class="tiny"></div>
-    <div id="flowLine" class="tiny"></div>
-    <div id="scoreRangeLine" class="tiny"></div>
+      <button class="btn-main" id="btnPredict">⚡ Run Simple Astro Prediction</button>
 
-    <div id="overallWinnerLine" class="tiny"></div>
-  </div>
-
-  <!-- TIMELINE -->
-  <div id="timelineCard" class="card" style="display:none;">
-    <div class="title-sm">Match Flow – Panchapakshi Environment (IST)</div>
-    <div id="timelineContainer"></div>
+      <div class="badge-row" id="summaryBadges">
+        <span class="badge">Engine idle</span>
+      </div>
+      <div class="log" id="predLog">
+        Choose a match on the left or fill teams manually, then run prediction.
+      </div>
+    </section>
   </div>
 </div>
 
 <script>
-/* ---------- CONSTANTS & TABLES ---------- */
-const BIRD_PLANETS = {
-  shukla: {
-    Vulture: ['Jupiter','Saturn'],
-    Owl:     ['Sun','Venus'],
-    Crow:    ['Moon'],
-    Cock:    ['Mars'],
-    Peacock: ['Mercury']
-  },
-  krishna: {
-    Vulture: ['Mars'],
-    Owl:     ['Moon'],
-    Crow:    ['Sun'],
-    Cock:    ['Jupiter','Saturn'],
-    Peacock: ['Mercury','Venus']
+// ------------ LIVE MATCH FETCH (API-FOOTBALL) ------------
+// NOTE: You MUST sign up at api-football.com and use your own API key.
+// This example uses v3 endpoint (RapidAPI style). Adjust host/header to your account.
+
+async function loadMatches(){
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const countryFilter = document.getElementById('countryFilter').value.trim().toLowerCase();
+  const leagueFilter  = document.getElementById('leagueFilter').value.trim().toLowerCase();
+  const logEl = document.getElementById('liveLog');
+  const listEl = document.getElementById('matchList');
+
+  if(!apiKey){
+    alert("First paste your API-Football API key.");
+    return;
   }
-};
 
-const PLAYER_NAK_BIRDS = [
-  'Peacock','Peacock','Peacock','Peacock','Peacock',
-  'Cock','Cock','Cock','Cock','Cock','Cock',
-  'Crow','Crow','Crow','Crow','Crow',
-  'Owl','Owl','Owl','Owl','Owl',
-  'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture'
-];
+  logEl.textContent = "Loading matches from API-Football...";
+  listEl.innerHTML = "";
 
-const FRIENDLY_BIRDS = {
-  Vulture: ['Owl','Cock'],
-  Owl:     ['Vulture','Peacock'],
-  Crow:    ['Peacock','Cock'],
-  Cock:    ['Vulture','Crow'],
-  Peacock: ['Owl','Crow']
-};
-const UNFRIENDLY_BIRDS = {
-  Vulture: ['Peacock','Crow'],
-  Owl:     ['Crow','Cock'],
-  Crow:    ['Vulture','Owl'],
-  Cock:    ['Peacock','Owl'],
-  Peacock: ['Vulture','Cock']
-};
-
-const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
-const DAY_PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
-
-function deriveRulingBirds(paksha){
-  const map = BIRD_PLANETS[paksha];
-  const arr = [];
-  for(let d=0; d<7; d++){
-    const planet = DAY_PLANETS[d];
-    let chosen = 'Vulture';
-    for(const bird of BIRDS){
-      const list = map[bird] || [];
-      if(list.includes(planet)){ chosen = bird; break; }
-    }
-    arr.push(chosen);
-  }
-  return arr;
-}
-const RULING_BIRDS = {
-  shukla: deriveRulingBirds('shukla'),
-  krishna: deriveRulingBirds('krishna')
-};
-
-const APAHARA_DURATIONS={Rule:48,Eat:30,Walk:36,Sleep:18,Die:12};
-const ACTIVITY_STRENGTH={Rule:{score:300},Eat:{score:240},Walk:{score:180},Sleep:{score:120},Die:{score:40}};
-const ACTIVITY_CYCLES={
-  shukla_day:['Eat','Walk','Rule','Sleep','Die'],
-  shukla_night:['Eat','Rule','Die','Walk','Sleep'],
-  krishna_day:['Eat','Die','Sleep','Rule','Walk'],
-  krishna_night:['Eat','Sleep','Walk','Die','Rule']
-};
-
-const LOCATIONS=[
-  { name: 'India (IST)', offset: 5.5 },
-  { name: 'Australia - East (AEST)', offset: 10 },
-  { name: 'Australia - Perth (AWST)', offset: 8 },
-  { name: 'England (GMT/BST)', offset: 1 },
-  { name: 'South Africa (SAST)', offset: 2 },
-  { name: 'UAE (GST)', offset: 4 },
-  { name: 'USA - New York (EDT)', offset: -4 },
-  { name: 'West Indies (AST)', offset: -4 },
-];
-
-const MATCH_FORMATS=[
-  { id:'t10', label:'T10', duration:1.5, type:'single' },
-  { id:'t20', label:'T20', duration:3.5, type:'single' },
-  { id:'odi', label:'ODI', duration:8, type:'single' },
-  { id:'test', label:'Test Match', duration:7, type:'multi' } 
-];
-
-const TEAM_COLOR_RULES = [
-  { pattern:/pak/i,               name:'Green',          color:'#16a34a' },
-  { pattern:/sri ?lanka|sl\b/i,   name:'Royal Blue',     color:'#2563eb' },
-  { pattern:/india|ind\b/i,       name:'Blue',           color:'#1d4ed8' },
-  { pattern:/renegades/i,         name:'Red',            color:'#dc2626' },
-  { pattern:/heat/i,              name:'Teal',           color:'#0d9488' },
-  { pattern:/strikers/i,          name:'Sky Blue',       color:'#38bdf8' },
-  { pattern:/sixers/i,            name:'Pink',           color:'#ec4899' },
-  { pattern:/scorchers/i,         name:'Orange',         color:'#f97316' },
-  { pattern:/stars|mls/iu,        name:'Green',          color:'#16a34a' },
-  { pattern:/thunder/i,           name:'Lime Green',     color:'#22c55e' },
-  { pattern:/renegades women/i,   name:'Red',            color:'#ef4444' },
-];
-
-/* ---------- DB ---------- */
-let teamStore = {};
-
-function loadStoreFromLocal(){
   try{
-    const raw = localStorage.getItem('astroTeamDB');
-    if(raw) teamStore = JSON.parse(raw) || {};
-  }catch(e){
-    teamStore = {};
-  }
-  updateDBInfo();
-}
-function saveStoreToLocal(){
-  try{
-    localStorage.setItem('astroTeamDB', JSON.stringify(teamStore));
-  }catch(e){}
-  updateDBInfo();
-}
-function updateDBInfo(){
-  const el = document.getElementById('dbInfo');
-  if(!el) return;
-  const keys = Object.keys(teamStore);
-  el.innerHTML = keys.length
-    ? 'Saved teams: ' + keys.join(', ')
-    : 'No teams saved yet.';
-}
+    // Today date in YYYY-MM-DD (your local time)
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2,'0');
+    const dd = String(today.getDate()).padStart(2,'0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
 
-/* ---------- HELPERS ---------- */
-const timeToMins=t=>{
-  if(!t)return 0;
-  const [h,m]=t.split(':').map(Number);
-  return h*60+m;
-};
-const minsToTime=m=>{
-  let x=m;
-  while(x<0)x+=1440;
-  x=x%1440;
-  const h=Math.floor(x/60);
-  const mm=x%60;
-  return h.toString().padStart(2,'0')+":"+
-         mm.toString().padStart(2,'0');
-};
-function dayOfYearFromDOB(dobStr){
-  if(!dobStr)return null;
-  const d=new Date(dobStr);
-  if(isNaN(d))return null;
-  const start=new Date(d.getFullYear(),0,0);
-  const diff=d-start;
-  const oneDay=1000*60*60*24;
-  return Math.floor(diff/oneDay);
-}
+    // Example endpoint: fixtures by date
+    const url = `https://v3.football.api-sports.io/fixtures?date=${dateStr}`;
 
-/* moon age → auto paksha */
-function computeMoonAge(date){
-  const year=date.getUTCFullYear();
-  const month=date.getUTCMonth()+1;
-  const day=date.getUTCDate();
-  let yy = year - Math.floor((12 - month)/10);
-  let mm = month + 9;
-  if(mm>=12) mm -= 12;
-  const k1 = Math.floor(365.25*(yy+4712));
-  const k2 = Math.floor(30.6*mm+0.5);
-  const k3 = Math.floor(Math.floor((yy/100)+49)*0.75) - 38;
-  const jd = k1 + k2 + day + 59 - k3;
-  const ip = (jd - 2451550.1)/29.530588853;
-  const frac = ip - Math.floor(ip);
-  return frac*29.530588853;
-}
-function autoSetPakshaFromToday(){
-  const d = new Date();
-  const age = computeMoonAge(d);
-  const paksha = age < 14.765 ? 'shukla' : 'krishna';
-  const sel = document.getElementById("paksha");
-  if(sel){ sel.value = paksha; }
-}
-
-/* players helper */
-function getTeamPlayersBasic(prefix){
-  const arr=[];
-  for(let i=1;i<=11;i++){
-    const name=document.getElementById(`${prefix}_name_${i}`).value.trim();
-    const dob=document.getElementById(`${prefix}_dob_${i}`).value;
-    if(name || dob){
-      arr.push({index:i,name:name||`Player ${i}`,dob});
-    }
-  }
-  return arr;
-}
-
-/* SAVE / LOAD / DELETE */
-function saveTeam(prefix){
-  const teamName = (prefix==='t1'
-                    ? document.getElementById('team1').value
-                    : document.getElementById('team2').value).trim();
-  if(!teamName){
-    alert("Enter team name first (top Team 1 / Team 2).");
-    return;
-  }
-  const players = getTeamPlayersBasic(prefix);
-  if(!players.length){
-    alert("No players to save for "+teamName);
-    return;
-  }
-  teamStore[teamName] = { players };
-  saveStoreToLocal();
-  alert("Saved "+players.length+" players for team '"+teamName+"'.");
-}
-function loadTeam(prefix){
-  const keys = Object.keys(teamStore);
-  if(!keys.length){
-    alert("No saved teams in DB.");
-    return;
-  }
-  const listText = "Saved teams:\n"+keys.join(", ");
-  const ask = prompt(listText+"\n\nType team name to load into "+(prefix==='t1'?'Team 1':'Team 2')+":");
-  if(!ask) return;
-  const rec = teamStore[ask];
-  if(!rec){
-    alert("Team '"+ask+"' not found.");
-    return;
-  }
-  const players = rec.players || [];
-  for(let i=1;i<=11;i++){
-    const p = players[i-1];
-    document.getElementById(`${prefix}_name_${i}`).value = p ? (p.name||'') : '';
-    document.getElementById(`${prefix}_dob_${i}`).value = p ? (p.dob||'') : '';
-  }
-  if(prefix==='t1'){
-    document.getElementById('team1').value = ask;
-  }else{
-    document.getElementById('team2').value = ask;
-  }
-  applyTeamThemes();
-  alert("Loaded "+players.length+" players for team '"+ask+"'.");
-}
-function deleteTeam(){
-  const keys = Object.keys(teamStore);
-  if(!keys.length){
-    alert("No saved teams in DB.");
-    return;
-  }
-  const listText = "Saved teams:\n"+keys.join(", ");
-  const ask = prompt(listText+"\n\nType team name to DELETE:");
-  if(!ask) return;
-  if(!teamStore[ask]){
-    alert("Team '"+ask+"' not found.");
-    return;
-  }
-  if(!confirm("Delete team '"+ask+"' from DB?")) return;
-  delete teamStore[ask];
-  saveStoreToLocal();
-  alert("Deleted team '"+ask+"'.");
-}
-function clearDB(){
-  if(!Object.keys(teamStore).length){
-    alert("DB already empty.");
-    return;
-  }
-  if(!confirm("Delete ALL saved teams?")) return;
-  teamStore = {};
-  saveStoreToLocal();
-  alert("All teams cleared.");
-}
-
-/* ---------- MATCH FRIENDLY INFO ---------- */
-function updateMatchFriendlyInfo(){
-  const el = document.getElementById("matchFriendlyInfo");
-  if(!el) return;
-  const dateStr=document.getElementById("date").value;
-  const paksha=document.getElementById("paksha").value;
-  if(!dateStr){
-    el.textContent = "Select Match Date + Paksha to see Today Ruling / Friendly / Unfriendly birds.";
-    return;
-  }
-  const d=new Date(dateStr);
-  const dayIdx=d.getDay();
-  const ruling=RULING_BIRDS[paksha][dayIdx];
-  const friendly = FRIENDLY_BIRDS[ruling] || [];
-  const enemy = UNFRIENDLY_BIRDS[ruling] || [];
-  el.innerHTML =
-    `Today Ruling Bird: <span class="excellent-text">${ruling}</span> • `+
-    `Friendly: <span class="good-text">${friendly.join(', ') || '-'}</span> • `+
-    `Unfriendly: <span class="weak-text">${enemy.join(', ') || '-'}</span>`;
-}
-
-/* ---------- TEAM THEME / JERSEY ---------- */
-function detectTeamTheme(name,fallbackColor){
-  if(!name) return {color:fallbackColor,label:'Default'};
-  for(const rule of TEAM_COLOR_RULES){
-    if(rule.pattern.test(name)) return {color:rule.color,label:rule.name};
-  }
-  return {color:fallbackColor,label:'Default'};
-}
-function applyTeamThemes(){
-  const t1=document.getElementById("team1").value.trim();
-  const t2=document.getElementById("team2").value.trim();
-  const t1Theme=detectTeamTheme(t1,'#0ea5e9');
-  const t2Theme=detectTeamTheme(t2,'#22c55e');
-  document.documentElement.style.setProperty('--team1-main', t1Theme.color);
-  document.documentElement.style.setProperty('--team2-main', t2Theme.color);
-  const jEl=document.getElementById("jerseyInfo");
-  jEl.innerHTML =
-    `Team 1 Jersey: <span style="font-weight:600;color:${t1Theme.color};">${t1Theme.label}</span> • `+
-    `Team 2 Jersey: <span style="font-weight:600;color:${t2Theme.color};">${t2Theme.label}</span>`;
-}
-
-/* ---------- AUTO BIRD (11 players summary) ---------- */
-function autoSuggestBirds(){
-  calcPlayersPanchapakshi();
-}
-
-/* ---------- TIME ENGINE (IST) ---------- */
-function getMainYamaContext(bird,timeMins,dayIdx,pakshaType){
-  const dayStart=360, nightStart=1080, yamaDuration=144;
-  let isNight=false,minsSinceStart=0,cycleStartMins=dayStart;
-  let t=timeMins;
-  if(t<dayStart)t+=1440;
-  if(t>=dayStart && t<nightStart){
-    isNight=false;
-    minsSinceStart=t-dayStart;
-    cycleStartMins=dayStart;
-  }else{
-    isNight=true;
-    if(t>=nightStart){
-      minsSinceStart=t-nightStart;
-      cycleStartMins=nightStart;
-    }else{
-      minsSinceStart=(t+1440)-nightStart;
-      cycleStartMins=nightStart;
-    }
-  }
-  const yamaIndex=Math.floor(minsSinceStart/yamaDuration);
-  const clamped=Math.min(yamaIndex,4);
-  const key=pakshaType+'_'+(isNight?'night':'day');
-  const cycle=ACTIVITY_CYCLES[key];
-  const ruling = RULING_BIRDS[pakshaType][dayIdx];
-
-  const bi=BIRDS.indexOf(bird);
-  const ri=BIRDS.indexOf(ruling);
-  const dist=(bi-ri+5)%5;
-  const actIdx=(clamped+dist)%5;
-  const mainActivity=cycle[actIdx];
-  const yamaStartTime=cycleStartMins+(clamped*yamaDuration);
-  return {mainActivity,yamaStartTime,activityCycle:cycle};
-}
-function generateGranularSegments(bird,rangeStartMins,rangeEndMins,dayIdx,pakshaType){
-  let segments=[];
-  let currentMins=rangeStartMins;
-  while(currentMins<rangeEndMins){
-    const {mainActivity,yamaStartTime,activityCycle}=getMainYamaContext(bird,currentMins%1440,dayIdx,pakshaType);
-    const mainActIdx=activityCycle.indexOf(mainActivity);
-    let subSegments=[];
-    let subSegStart=yamaStartTime;
-    for(let i=0;i<5;i++){
-      const subActName=activityCycle[(mainActIdx+i)%5];
-      const dur=APAHARA_DURATIONS[subActName];
-      subSegments.push({
-        activity:subActName,
-        start:subSegStart,
-        end:subSegStart+dur,
-        score:ACTIVITY_STRENGTH[subActName].score
-      });
-      subSegStart+=dur;
-    }
-    for(let sub of subSegments){
-      let sStart=sub.start;
-      let sEnd=sub.end;
-      const effectiveStart=Math.max(currentMins,sStart);
-      const effectiveEnd=Math.min(rangeEndMins,sEnd);
-      if(effectiveEnd>effectiveStart){
-         segments.push({
-           startMins:effectiveStart,
-           endMins:effectiveEnd,
-           activity:sub.activity,
-           score:sub.score,
-           duration:effectiveEnd-effectiveStart
-         });
-         currentMins=effectiveEnd;
+    const res = await fetch(url,{
+      method:"GET",
+      headers:{
+        "x-apisports-key": apiKey   // your API key here
       }
-    }
-    if(currentMins>=rangeEndMins)break;
-    if(currentMins<yamaStartTime+144)currentMins=yamaStartTime+144;
-  }
-  return segments;
-}
-function getExactStatusAtTime(bird,timeMins,dayIdx,pakshaType){
-  const segments=generateGranularSegments(bird,timeMins,timeMins+1,dayIdx,pakshaType);
-  if(segments.length>0)return segments[0];
-  return {activity:'Die',score:40};
-}
-
-/* ---------- PLAYERS PANCHAPAKSHI ---------- */
-function calcPlayersPanchapakshi(){
-  const paksha=document.getElementById("paksha").value;
-  const dateStr=document.getElementById("date").value;
-  const team1=document.getElementById("team1").value||"Team 1";
-  const team2=document.getElementById("team2").value||"Team 2";
-
-  if(!dateStr){
-    alert("Select match date first.");
-    return;
-  }
-
-  const matchDate=new Date(dateStr);
-  const dayIdx=matchDate.getDay();
-
-  const rulingBirdToday=RULING_BIRDS[paksha][dayIdx];
-  const friendlyList = FRIENDLY_BIRDS[rulingBirdToday] || [];
-  const enemyList = UNFRIENDLY_BIRDS[rulingBirdToday] || [];
-
-  const t1Players=getTeamPlayersBasic("t1");
-  const t2Players=getTeamPlayersBasic("t2");
-
-  let autoBird1=null;
-  let autoBird2=null;
-
-  let html=
-    `Today Ruling Bird: <span class="excellent-text">${rulingBirdToday}</span><br>`+
-    `Friendly Birds: <span class="good-text">${friendlyList.join(', ') || '-'}</span><br>`+
-    `Unfriendly (Enemy) Birds: <span class="weak-text">${enemyList.join(', ') || '-'}</span><br><br>`;
-
-  function teamBlock(label,players,teamKey){
-    if(!players.length)return `${label}: no players entered.<br><br>`;
-    let birdCount={Vulture:0,Owl:0,Crow:0,Cock:0,Peacock:0};
-    let lines=[];
-    let excellent=[],good=[],weak=[];
-    players.forEach(p=>{
-      const dayNo=dayOfYearFromDOB(p.dob);
-      if(!dayNo){
-        lines.push(`<div class="player-line">${p.index}. <b>${p.name}</b>: DOB not set.</div>`);
-        return;
-      }
-      const nakIdx=(dayNo-1)%27;
-      const starNo=nakIdx+1;
-      const bird=PLAYER_NAK_BIRDS[nakIdx];
-      if(bird)birdCount[bird]=(birdCount[bird]||0)+1;
-      let tag='', cls='';
-      if(bird===rulingBirdToday){
-        excellent.push(p.name);
-        cls='excellent-text';
-        tag='Excellent';
-      }else if(friendlyList.includes(bird)){
-        good.push(p.name);
-        cls='good-text';
-        tag='Good';
-      }else if(enemyList.includes(bird)){
-        weak.push(p.name);
-        cls='weak-text';
-        tag='Weak';
-      }
-      lines.push(
-        `<div class="player-line">${p.index}. <b>${p.name}</b>: DOB ${p.dob} → Star ${starNo} → Bird: <span class="${cls}">${bird}${tag?(' – '+tag):''}</span></div>`
-      );
     });
 
-    let domBird=null, maxCount=0;
-    Object.keys(birdCount).forEach(b=>{
-      if(birdCount[b]>maxCount){
-        maxCount=birdCount[b];
-        domBird=b;
-      }
-    });
-    if(teamKey==='t1') autoBird1=domBird;
-    if(teamKey==='t2') autoBird2=domBird;
+    if(!res.ok){
+      const txt = await res.text();
+      logEl.textContent = "API error: "+res.status+" → "+txt;
+      return;
+    }
 
-    const spread=Object.keys(birdCount)
-      .filter(b=>birdCount[b]>0)
-      .map(b=>`${b} × ${birdCount[b]}`)
-      .join(', ');
+    const data = await res.json();
+    const fixtures = data.response || [];
 
-    const exText = excellent.length
-      ? `<span class="excellent-text">${excellent.length} Excellent</span> (${excellent.join(', ')})`
-      : `No exact-bird players today.`;
+    if(!fixtures.length){
+      logEl.textContent = "No fixtures found for today.";
+      return;
+    }
 
-    const goodText = good.length
-      ? `<span class="good-text">${good.length} Good</span> (${good.join(', ')})`
-      : `No good-support players.`;
+    let count = 0;
+    fixtures.forEach(fix=>{
+      const leagueName = (fix.league && fix.league.name) || "";
+      const country = (fix.league && fix.league.country) || "";
+      const t1 = fix.teams && fix.teams.home ? fix.teams.home.name : "";
+      const t2 = fix.teams && fix.teams.away ? fix.teams.away.name : "";
+      const status = fix.fixture && fix.fixture.status ? fix.fixture.status.short : "";
+      const kickoff = fix.fixture && fix.fixture.date ? new Date(fix.fixture.date) : null;
+      const stadium = fix.fixture && fix.fixture.venue ? fix.fixture.venue.name : "";
 
-    const weakText = weak.length
-      ? `<span class="weak-text">${weak.length} Weak</span> (${weak.join(', ')})`
-      : `No weak (enemy) players.`;
+      // filters
+      if(countryFilter && !country.toLowerCase().includes(countryFilter)) return;
+      if(leagueFilter && !leagueName.toLowerCase().includes(leagueFilter)) return;
 
-    return `<b>${label}</b><br>`+
-           `Bird spread: ${spread||'-'}<br>`+
-           `Best: ${exText}<br>`+
-           `Support: ${goodText}<br>`+
-           `Weak: ${weakText}<br>`+
-           lines.join("")+
-           "<br><br>";
-  }
+      count++;
 
-  html+=teamBlock(team1,t1Players,'t1');
-  html+=teamBlock(team2,t2Players,'t2');
+      const card = document.createElement("div");
+      card.className = "match-card";
 
-  document.getElementById("playersResult").innerHTML=html;
-  if(autoBird1){ document.getElementById("bird1").value = autoBird1; }
-  if(autoBird2){ document.getElementById("bird2").value = autoBird2; }
-  updateMatchFriendlyInfo();
-  applyTeamThemes();
-}
+      const isLive = status === "1H" || status === "2H" || status === "ET" || status === "P" || status === "BT";
+      const isNS   = status === "NS"; // not started
 
-/* player strength */
-function computePlayerStrength(prefix,rulingBirdToday){
-  const players=getTeamPlayersBasic(prefix);
-  const friendlyList = FRIENDLY_BIRDS[rulingBirdToday] || [];
-  const enemyList = UNFRIENDLY_BIRDS[rulingBirdToday] || [];
-  let ex=0,good=0,weak=0;
-  players.forEach(p=>{
-    const dayNo=dayOfYearFromDOB(p.dob);
-    if(!dayNo)return;
-    const idx=(dayNo-1)%27;
-    const bird=PLAYER_NAK_BIRDS[idx];
-    if(bird===rulingBirdToday) ex++;
-    else if(friendlyList.includes(bird)) good++;
-    else if(enemyList.includes(bird)) weak++;
-  });
-  return {ex,good,weak};
-}
+      const statusLabel = isLive
+        ? "LIVE"
+        : isNS ? "Upcoming" : status || "Status";
 
-/* ---------- SCORE RANGE ---------- */
-function calcScoreRanges(formatId, env1, env2){
-  let base;
-  if(formatId==='t10') base=100;
-  else if(formatId==='t20') base=165;
-  else if(formatId==='odi') base=275;
-  else base=300;
+      const statusClass = isLive ? "match-status live" : "match-status upcoming";
 
-  function makeRange(diff){
-    const mid = base + diff*0.3;
-    let low = Math.round((mid-5)/5)*5;
-    let high= Math.round((mid+5)/5)*5;
-    if(low<20) low=20;
-    return {low,high};
-  }
+      const timeText = kickoff
+        ? kickoff.toLocaleString()
+        : "-";
 
-  const diff1 = env1-env2;
-  const diff2 = env2-env1;
-  return {
-    t1: makeRange(diff1),
-    t2: makeRange(diff2)
-  };
-}
+      card.innerHTML = `
+        <div class="match-row1">
+          <div class="match-teams">${t1} vs ${t2}</div>
+          <div class="${statusClass}">${statusLabel}</div>
+        </div>
+        <div class="league">${leagueName} · ${country}</div>
+        <div class="match-sub">
+          <span>${timeText}${stadium ? " · "+stadium : ""}</span>
+          <button class="small-btn">Use for prediction</button>
+        </div>
+      `;
 
-/* ---------- BAR WITH LABEL & MOVING LINE ---------- */
-function makeBar(p1, p2, leftLabel, rightLabel, leftClass='team1-text', rightClass='team2-text'){
-  return `
-    <div class="bar-wrap">
-      <div class="bar-midline" style="left:${p1}%;"></div>
-      <div class="bar-fill bar-t1" style="width:${p1}%;"></div>
-      <div class="bar-fill bar-t2" style="width:${p2}%;"></div>
-      <div class="bar-label">
-        <span class="${leftClass}">${leftLabel}</span>
-         •
-        <span class="${rightClass}">${rightLabel}</span>
-      </div>
-    </div>`;
-}
-
-/* ---------- MATCH PREDICTION ---------- */
-function handlePredict(){
-  applyTeamThemes();
-
-  const team1=document.getElementById("team1").value||"Team 1";
-  const team2=document.getElementById("team2").value||"Team 2";
-  const dateStr=document.getElementById("date").value;
-  const startTime=document.getElementById("startTime").value;
-  const endTime=document.getElementById("endTime").value;
-  const tossTime=document.getElementById("tossTime").value;
-  const paksha=document.getElementById("paksha").value;
-  const formatId=document.getElementById("format").value;
-  const bird1=document.getElementById("bird1").value;
-  const bird2=document.getElementById("bird2").value;
-  const tossDecision=document.getElementById("tossDecision").value;
-
-  if(!bird1||!bird2){alert("Select both team birds (or use Auto Bird / Calc Players).");return;}
-  if(!dateStr){alert("Select match date.");return;}
-
-  const baseDate=new Date(dateStr);
-  const day0Idx=baseDate.getDay();
-  const rulingBirdToday=RULING_BIRDS[paksha][day0Idx];
-  const friendlyR = FRIENDLY_BIRDS[rulingBirdToday] || [];
-  const enemyR = UNFRIENDLY_BIRDS[rulingBirdToday] || [];
-
-  const format=MATCH_FORMATS.find(f=>f.id===formatId)||MATCH_FORMATS[1];
-  const isTest=format.type==='multi';
-  const daysToAnalyze=isTest?5:1;
-
-  /* Toss info */
-  const tossIST=timeToMins(tossTime);
-  const t1Toss=getExactStatusAtTime(bird1,tossIST,day0Idx,paksha);
-  const t2Toss=getExactStatusAtTime(bird2,tossIST,day0Idx,paksha);
-
-  function adjustTossScore(ts,bird){
-    let bonus=0;
-    if(bird===rulingBirdToday) bonus=80;
-    else if(friendlyR.includes(bird)) bonus=40;
-    else if(enemyR.includes(bird)) bonus=-40;
-    return ts.score+bonus;
-  }
-
-  const tossScore1 = adjustTossScore(t1Toss,bird1);
-  const tossScore2 = adjustTossScore(t2Toss,bird2);
-
-  let tossWinner="Balanced / 50-50";
-  if(tossScore1>tossScore2)tossWinner=team1;
-  else if(tossScore2>tossScore1)tossWinner=team2;
-  const tossTot=tossScore1+tossScore2;
-  const tossP1=tossTot>0?(tossScore1/tossTot)*100:50;
-  const tossP2=100-tossP1;
-
-  /* Match flow env */
-  let allDays=[];
-  let envP1 = 50, envP2 = 50;
-
-  for(let d=0;d<daysToAnalyze;d++){
-    let curDate=new Date(baseDate);
-    curDate.setDate(baseDate.getDate()+d);
-    const dayIdx=curDate.getDay();
-    const startIST=timeToMins(startTime);
-    let endIST=timeToMins(endTime);
-    if(endIST<startIST)endIST+=1440;
-
-    const seg1=generateGranularSegments(bird1,startIST,endIST,dayIdx,paksha);
-    const seg2=generateGranularSegments(bird2,startIST,endIST,dayIdx,paksha);
-
-    let points=new Set([startIST,endIST]);
-    seg1.forEach(s=>{points.add(s.startMins);points.add(s.endMins);});
-    seg2.forEach(s=>{points.add(s.startMins);points.add(s.endMins);});
-    const sorted=Array.from(points).sort((a,b)=>a-b);
-
-    let timeline=[];
-    let totDur=0, accP1=0;
-
-    for(let i=0;i<sorted.length-1;i++){
-      const p1=sorted[i],p2=sorted[i+1],dur=p2-p1;
-      const a1=seg1.find(s=>s.startMins<=p1 && s.endMins>=p2);
-      const a2=seg2.find(s=>s.startMins<=p1 && s.endMins>=p2);
-      if(a1&&a2){
-        const segTotal=a1.score+a2.score;
-        const segP1=segTotal>0?(a1.score/segTotal)*100:50;
-        const segP2=100-segP1;
-        timeline.push({
-          istStart:minsToTime(p1),
-          istEnd:minsToTime(p2),
-          duration:dur,
-          t1:{activity:a1.activity,percent:segP1},
-          t2:{activity:a2.activity,percent:segP2}
+      const btn = card.querySelector("button.small-btn");
+      btn.addEventListener("click",()=>{
+        fillPredictionFromMatch({
+          team1:t1,
+          team2:t2,
+          league:leagueName,
+          stadium:stadium,
+          kickoff:kickoff
         });
-        accP1 += segP1*dur;
-        totDur += dur;
-      }
-    }
-    if(totDur>0){
-      envP1 = accP1/totDur;
-      envP2 = 100-envP1;
-    }
-    allDays.push({timeline});
-  }
+      });
 
-  let batFavTeam=null, chaseFavTeam=null;
-  if(envP1>envP2+2){
-    batFavTeam=team1;
-    chaseFavTeam=team2;
-  }else if(envP2>envP1+2){
-    batFavTeam=team2;
-    chaseFavTeam=team1;
-  }
-
-  /* Players strength */
-  const t1PS = computePlayerStrength("t1",rulingBirdToday);
-  const t2PS = computePlayerStrength("t2",rulingBirdToday);
-
-  const t1Raw = (t1PS.ex * 5) + (t1PS.good * 3) - (t1PS.weak * 2);
-  const t2Raw = (t2PS.ex * 5) + (t2PS.good * 3) - (t2PS.weak * 2);
-
-  let p1Players=50, p2Players=50;
-
-  if(t1Raw>0 || t2Raw>0){
-    const adj1 = Math.max(t1Raw,0);
-    const adj2 = Math.max(t2Raw,0);
-    const total = adj1+adj2 || 1;
-    const rawP1 = (adj1/total)*100;
-    const rawP2 = 100-rawP1;
-
-    const compress = (p)=>{
-      if(p>=50){
-        const diff = Math.min(p-50,20);
-        return 50+diff;
-      }else{
-        const diff = Math.min(50-p,20);
-        return 50-diff;
-      }
-    };
-    p1Players = compress(rawP1);
-    p2Players = compress(rawP2);
-  }
-
-  /* combine players + env */
-  let envWeight;
-  if(formatId==='t10') envWeight=0.4;
-  else if(formatId==='t20') envWeight=0.35;
-  else if(formatId==='odi') envWeight=0.3;
-  else envWeight=0.25;
-  const playerWeight = 1-envWeight;
-
-  let overallP1 = playerWeight*p1Players + envWeight*envP1;
-  let overallP2 = 100-overallP1;
-
-  if(tossDecision==='bat' && batFavTeam){
-    if(batFavTeam===team1){ overallP1+=4; overallP2-=4; }
-    else { overallP2+=4; overallP1-=4; }
-  }else if(tossDecision==='bowl' && chaseFavTeam){
-    if(chaseFavTeam===team1){ overallP1+=4; overallP2-=4; }
-    else { overallP2+=4; overallP1-=4; }
-  }
-
-  const clamp = (p)=>{
-    if(p>70) return 70;
-    if(p<30) return 30;
-    return p;
-  };
-  overallP1 = clamp(overallP1);
-  overallP2 = clamp(overallP2);
-
-  let overallWinner = "Balanced / 50-50";
-  if(overallP1>overallP2+1) overallWinner = team1;
-  else if(overallP2>overallP1+1) overallWinner = team2;
-
-  /* ---------- render summary ---------- */
-  document.getElementById("summaryCard").style.display="block";
-
-  document.getElementById("tossWinnerLine").innerHTML =
-    `<span class="tag tag-toss">Toss Info</span>`+
-    `Likely Toss Winner → <span class="winner-name">${tossWinner}</span>`;
-
-  const tossBar = makeBar(
-    tossP1,
-    tossP2,
-    `${team1} ${tossP1.toFixed(1)}%`,
-    `${team2} ${tossP2.toFixed(1)}%`
-  );
-
-  document.getElementById("tossDetailLine").innerHTML = tossBar;
-
-  document.getElementById("team1Summary").innerHTML =
-    `<div class="summary-team-title">Today ${team1}</div>
-     <div class="summary-line">Excellent Players – <span class="excellent-text">${t1PS.ex}</span></div>
-     <div class="summary-line">Good – <span class="good-text">${t1PS.good}</span></div>
-     <div class="summary-line">Weak / Floop – <span class="weak-text">${t1PS.weak}</span></div>
-     <div class="summary-line"><span class="team1-text">${team1}</span> Players Strength % – <b>${p1Players.toFixed(1)}%</b></div>`;
-
-  document.getElementById("team2Summary").innerHTML =
-    `<div class="summary-team-title">Today ${team2}</div>
-     <div class="summary-line">Excellent Players – <span class="excellent-text">${t2PS.ex}</span></div>
-     <div class="summary-line">Good – <span class="good-text">${t2PS.good}</span></div>
-     <div class="summary-line">Weak / Floop – <span class="weak-text">${t2PS.weak}</span></div>
-     <div class="summary-line"><span class="team2-text">${team2}</span> Players Strength % – <b>${p2Players.toFixed(1)}%</b></div>`;
-
-  const playersBar = makeBar(
-    p1Players,
-    p2Players,
-    `${team1} ${p1Players.toFixed(1)}%`,
-    `${team2} ${p2Players.toFixed(1)}%`
-  );
-
-  document.getElementById("playersLine").innerHTML =
-    `<span class="tag tag-match">Players %</span>` +
-    playersBar;
-
-  const flowBar = makeBar(
-    envP1,
-    envP2,
-    `${team1} ${envP1.toFixed(1)}%`,
-    `${team2} ${envP2.toFixed(1)}%`
-  );
-
-  document.getElementById("flowLine").innerHTML =
-    `<span class="tag tag-flow">Match Flow (IST)</span>` +
-    flowBar;
-
-  const ranges = calcScoreRanges(formatId, envP1, envP2);
-
-  /* decide which team bats first → only that score range show */
-  let predictedBatTeam = null;
-  if(tossWinner !== "Balanced / 50-50"){
-    if(tossDecision === 'bat'){
-      predictedBatTeam = tossWinner;
-    }else{
-      predictedBatTeam = (tossWinner === team1) ? team2 : team1;
-    }
-  }
-
-  let scoreText = '';
-  if(predictedBatTeam === team1){
-    scoreText = `<span class="team1-text">${team1}</span>: ${ranges.t1.low} – ${ranges.t1.high}`;
-  }else if(predictedBatTeam === team2){
-    scoreText = `<span class="team2-text">${team2}</span>: ${ranges.t2.low} – ${ranges.t2.high}`;
-  }else{
-    scoreText =
-      `<span class="team1-text">${team1}</span>: ${ranges.t1.low} – ${ranges.t1.high}<br>`+
-      `<span class="team2-text">${team2}</span>: ${ranges.t2.low} – ${ranges.t2.high}`;
-  }
-
-  document.getElementById("scoreRangeLine").innerHTML =
-    `<span class="tag tag-flow">Score Range (Bat 1st)</span><br>`+
-    scoreText;
-
-  /* overall winner colours: winner green, loser red */
-  let t1Class='team1-text';
-  let t2Class='team2-text';
-  if(overallWinner===team1){
-    t1Class='excellent-text';
-    t2Class='weak-text';
-  }else if(overallWinner===team2){
-    t1Class='weak-text';
-    t2Class='excellent-text';
-  }
-
-  document.getElementById("overallWinnerLine").innerHTML =
-    `<span class="tag tag-overall">Overall</span>`+
-    `Overall Winner: <span class="winner-name">${overallWinner}</span> 🏆`+
-    `<br><span class="${t1Class}">${team1}</span> ${overallP1.toFixed(1)}% • `+
-    `<span class="${t2Class}">${team2}</span> ${overallP2.toFixed(1)}%`;
-
-  /* Timeline */
-  const tlDiv=document.getElementById("timelineContainer");
-  tlDiv.innerHTML='';
-  const first=allDays[0];
-  if(first && first.timeline.length){
-    const table=document.createElement("table");
-    table.innerHTML=
-      `<thead>
-        <tr>
-          <th>IST Start–End</th>
-          <th>DUR</th>
-          <th>${team1} Activity</th>
-          <th>${team1} %</th>
-          <th>${team2} Activity</th>
-          <th>${team2} %</th>
-          <th>Edge</th>
-        </tr>
-      </thead>`;
-    const tb=document.createElement("tbody");
-    first.timeline.forEach(seg=>{
-      const fav=seg.t1.percent>seg.t2.percent?team1:
-                seg.t2.percent>seg.t1.percent?team2:"Even";
-      const tr=document.createElement("tr");
-      tr.className = fav===team1 ? 'flow-t1'
-                  : fav===team2 ? 'flow-t2'
-                  : 'flow-even';
-      tr.innerHTML=
-        `<td>${seg.istStart}–${seg.istEnd}</td>
-         <td>${seg.duration}</td>
-         <td>${seg.t1.activity}</td>
-         <td>${seg.t1.percent.toFixed(1)}%</td>
-         <td>${seg.t2.activity}</td>
-         <td>${seg.t2.percent.toFixed(1)}%</td>
-         <td>${fav}</td>`;
-      tb.appendChild(tr);
+      listEl.appendChild(card);
     });
-    table.appendChild(tb);
-    tlDiv.appendChild(table);
-    document.getElementById("timelineCard").style.display="block";
-  }else{
-    document.getElementById("timelineCard").style.display="none";
+
+    if(count === 0){
+      logEl.textContent = "No fixtures match your filters (country / league).";
+    }else{
+      logEl.textContent = `Loaded ${count} matches. Tap “Use for prediction” to auto-fill.`;
+    }
+
+  }catch(err){
+    console.error(err);
+    logEl.textContent = "Error loading matches: "+err.message;
   }
 }
 
-/* ---------- INIT ---------- */
-(function init(){
-  document.getElementById("date").value=new Date().toISOString().split("T")[0];
-  const sel=document.getElementById("loc");
-  LOCATIONS.forEach(loc=>{
-    const opt=document.createElement("option");
-    opt.value=loc.offset;
-    opt.textContent=loc.name;
-    if(loc.name.startsWith('India'))opt.selected=true;
-    sel.appendChild(opt);
+function fillPredictionFromMatch(match){
+  document.getElementById("team1").value = match.team1 || "";
+  document.getElementById("team2").value = match.team2 || "";
+  document.getElementById("league").value = match.league || "";
+  document.getElementById("stadium").value = match.stadium || "";
+
+  if(match.kickoff instanceof Date && !isNaN(match.kickoff)){
+    const d = match.kickoff;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const hh = String(d.getHours()).padStart(2,'0');
+    const min = String(d.getMinutes()).padStart(2,'0');
+    document.getElementById("matchDate").value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById("matchTime").value = `${hh}:${min}`;
+  }
+
+  const log = document.getElementById("predLog");
+  log.textContent = "Match auto-filled from live list. Now adjust jersey colours / notes and run prediction.";
+}
+
+// ------------ SIMPLE ASTRO PREDICTION (placeholder) ------------
+
+function runPrediction(){
+  const team1 = document.getElementById("team1").value.trim() || "Team 1";
+  const team2 = document.getElementById("team2").value.trim() || "Team 2";
+  const jersey1 = document.getElementById("jersey1").value.trim().toLowerCase();
+  const jersey2 = document.getElementById("jersey2").value.trim().toLowerCase();
+  const date = document.getElementById("matchDate").value;
+  const time = document.getElementById("matchTime").value;
+  const league = document.getElementById("league").value.trim();
+  const stadium = document.getElementById("stadium").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+
+  const badges = [];
+  const logLines = [];
+
+  // Simple colour-based bias
+  const warm = ["red","maroon","orange","yellow","gold"];
+  const cool = ["blue","navy","black","green","white"];
+
+  let score1 = 0, score2 = 0;
+
+  if(jersey1 && warm.some(c=>jersey1.includes(c))) score1 += 2;
+  if(jersey2 && warm.some(c=>jersey2.includes(c))) score2 += 2;
+  if(jersey1 && cool.some(c=>jersey1.includes(c))) score2 += 1;
+  if(jersey2 && cool.some(c=>jersey2.includes(c))) score1 += 1;
+
+  // Day / time mini-effect
+  if(date && time){
+    const dt = new Date(date+"T"+time);
+    const hour = dt.getHours();
+    if(hour >= 21 || hour < 6){
+      // night advantage to defensive / cool
+      if(jersey2 && cool.some(c=>jersey2.includes(c))) score2 += 1;
+      if(jersey1 && cool.some(c=>jersey1.includes(c))) score1 += 1;
+      logLines.push("Night match → cool / dark colours slightly boosted.");
+    }else{
+      if(jersey1 && warm.some(c=>jersey1.includes(c))) score1 += 1;
+      if(jersey2 && warm.some(c=>jersey2.includes(c))) score2 += 1;
+      logLines.push("Day match → warm / bright colours slightly boosted.");
+    }
+  }
+
+  const total = score1 + score2 || 1;
+  let p1 = (score1/total)*100;
+  let p2 = 100 - p1;
+
+  // Soft clamp
+  if(p1 > 70) p1 = 70;
+  if(p1 < 30) p1 = 30;
+  p2 = 100 - p1;
+
+  let fav = "Balanced / 50-50";
+  if(p1 > p2 + 1) fav = team1;
+  else if(p2 > p1 + 1) fav = team2;
+
+  badges.push(`Favoured side (colour-only dummy): ${fav}`);
+  badges.push(`${team1} ~ ${p1.toFixed(1)}%`);
+  badges.push(`${team2} ~ ${p2.toFixed(1)}%`);
+
+  if(league) logLines.push("League: "+league);
+  if(stadium) logLines.push("Stadium / City: "+stadium);
+  if(notes) logLines.push("User notes: "+notes);
+
+  logLines.push("");
+  logLines.push("NOTE: This is only a SIMPLE placeholder.");
+  logLines.push("Later we can plug your full Panchapakshi + Numerology + Jersey + GoalTime V2.0 engine here.");
+
+  const badgeBox = document.getElementById("summaryBadges");
+  badgeBox.innerHTML = "";
+  badges.forEach(t=>{
+    const span = document.createElement("span");
+    span.className = "badge badge-strong";
+    span.textContent = t;
+    badgeBox.appendChild(span);
   });
 
-  autoSetPakshaFromToday();
-  updateMatchFriendlyInfo();
-  applyTeamThemes();
-  loadStoreFromLocal();
+  document.getElementById("predLog").textContent = logLines.join("\n");
+}
 
-  document.getElementById("date").addEventListener("change", updateMatchFriendlyInfo);
-  document.getElementById("paksha").addEventListener("change", updateMatchFriendlyInfo);
-  document.getElementById("team1").addEventListener("input", applyTeamThemes);
-  document.getElementById("team2").addEventListener("input", applyTeamThemes);
+// ------------ HOOK BUTTONS + INIT ------------
+
+document.getElementById("btnLoad").addEventListener("click", e=>{
+  e.preventDefault();
+  loadMatches();
+});
+
+document.getElementById("btnPredict").addEventListener("click", e=>{
+  e.preventDefault();
+  runPrediction();
+});
+
+// set default date to today
+(function(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  document.getElementById("matchDate").value = `${yyyy}-${mm}-${dd}`;
 })();
 </script>
-
 </body>
 </html>
