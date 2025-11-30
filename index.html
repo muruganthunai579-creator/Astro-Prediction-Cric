@@ -99,7 +99,6 @@
       background:linear-gradient(90deg,#16a34a,#22c55e);
       box-shadow:0 8px 18px rgba(34,197,94,.45);
     }
-    /* SMALL button (green circle mark fix) */
     .btn-auto{
       width:auto;
       padding:8px 14px;
@@ -107,7 +106,6 @@
       align-self:flex-end;
       white-space:nowrap;
     }
-
     button:active{transform:scale(.97);}
 
     table{
@@ -239,7 +237,7 @@
     </div>
     <div id="apiInfo" class="tiny">
       Paste your API key & pick day → click <b>Load Matches</b>.  
-      Red ● row = LIVE now. Only today LIVE + upcoming matches are shown.
+      Red row = LIVE now. Only today LIVE + upcoming matches are shown.
     </div>
 
     <div id="matchTableWrap" style="display:none;">
@@ -323,21 +321,43 @@
     </div>
     <div id="waitLine" class="tiny">Waiting for match input…</div>
     <div id="summaryBox" class="tiny"></div>
+  </div>
 
-    <!-- PASS / FAIL CHECK (blue mark) -->
-    <div id="resultCheck" class="tiny" style="margin-top:10px;display:none;">
-      <span class="tag tag-info">Result check</span>
-      <div class="row">
-        <div>
-          <label>Final score (FT)</label>
-          <input id="ftScore" placeholder="Ex: 2-1" />
-        </div>
-        <div style="flex:0 0 auto;display:flex;align-items:flex-end;justify-content:flex-end;">
-          <button class="btn-dark btn-auto" onclick="checkResult()">Check Pass / Fail</button>
-        </div>
-      </div>
-      <div id="passLine" class="tiny"></div>
+  <!-- TIMELINE (optional – not used now but kept for layout) -->
+  <div id="timelineCard" class="card" style="display:none;">
+    <div class="title-sm">Match Flow – Panchapakshi Environment (IST)</div>
+    <div id="timelineContainer"></div>
+  </div>
+
+  <!-- STEP 4 · PREDICTION HISTORY (PASS / FAIL) – ALWAYS LAST -->
+  <div class="card" id="historyCard">
+    <div class="title-sm">Prediction History – Pass / Fail</div>
+
+    <div class="tiny">
+      Saved only in this browser (local storage).  
+      After matches finish, press <b>Update Finished Results</b>.
     </div>
+
+    <button class="btn-main"
+            style="margin-top:8px;margin-bottom:8px;"
+            onclick="updateFinishedResultsFromApi()">
+      UPDATE FINISHED RESULTS (API)
+    </button>
+
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Match</th>
+          <th>Your Call</th>
+          <th>Final Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody">
+        <!-- filled by JS -->
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -349,6 +369,12 @@
     return d.toISOString().slice(0,10);
   }
 
+  // Prediction history
+  const HISTORY_KEY = 'astroFootballHistory';
+  let predictionHistory = [];
+  let currentFixtureId = null;
+
+  // Panchapakshi data
   const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
 
   const NAKSHATRA_BIRDS = [
@@ -412,7 +438,7 @@
     krishna: deriveRulingBirds('krishna')
   };
 
-  // ACTIVITY SCORE RULE (100 / 80 / 50 / 30 / 0)
+  // Rule lock scores
   const ACTIVITY_SCORES = {
     Rule:100,
     Eat:80,
@@ -421,7 +447,7 @@
     Die:0
   };
 
-  // Numerology for team name → 27 nakshatra → bird
+  // Numerology → bird
   const CHALDEAN = {
     1:['A','I','J','Q','Y'],
     2:['B','K','R'],
@@ -494,14 +520,13 @@
     $('dayInfo').innerHTML =
       `<span class="tag tag-info">Day Bird</span>`+
       `${dow} · Paksha: ${paksha[0].toUpperCase()+paksha.slice(1)} · `+
-      `Ruling bird for match day: <span class="excellent-text">${dayBird}</span> · `+
+      `Ruling bird: <span class="excellent-text">${dayBird}</span> · `+
       `Friendly: <span class="good-text">${friendly.join(', ')||'-'}</span> · `+
       `Enemy: <span class="weak-text">${enemy.join(', ')||'-'}</span>`;
   }
 
   let homeBirdLocked = null;
   let awayBirdLocked = null;
-  let lastPrediction = null;
 
   function autoTeamBirds(){
     const home = $('homeTeam').value.trim();
@@ -609,7 +634,6 @@
     homePct = clamp(homePct);
     awayPct = 100 - homePct;
 
-    // avoid exact 50-50
     if (homePct === awayPct){
       homePct += 0.5;
       awayPct -= 0.5;
@@ -617,14 +641,14 @@
 
     const diff = homePct - awayPct;
 
-    // ---- DRAW ENGINE (red circle) ----
+    // Draw engine (activity + bird)
     const homeScoreAct = ACTIVITY_SCORES[env.homeAct];
     const awayScoreAct = ACTIVITY_SCORES[env.awayAct];
     const actDiff = Math.abs(homeScoreAct - awayScoreAct);
     const sameBird = homeBirdLocked === awayBirdLocked;
     const sameActivity = env.homeAct === env.awayAct;
 
-    let drawFlag = 'NO';  // 'YES' | 'MAYBE' | 'NO'
+    let drawFlag = 'NO';  // YES / MAYBE / NO
     if (sameBird || sameActivity || actDiff <= 20) {
       drawFlag = 'YES';
     } else if (actDiff <= 30 || Math.abs(diff) <= 8) {
@@ -656,9 +680,9 @@
 
     if (drawLikely) {
       if (env.home < 55 && env.away < 55) {
-        scoreHint = '0–0 or 1–1 (low activity draw side).';
+        scoreHint = '0–0 or 1–1 (low activity draw).';
       } else {
-        scoreHint = '1–1 or 2–2 (open draw side).';
+        scoreHint = '1–1 or 2–2 (open draw).';
       }
     } else {
       if (strongSidePct >= 65) {
@@ -670,7 +694,6 @@
       }
     }
 
-    // winner (no more Balanced/50-50)
     const winner = diff >= 0 ? home : away;
 
     let homeClass = 'home-text';
@@ -710,63 +733,167 @@
          Final call: <span class="excellent-text">${winner}</span>
        </div>`;
 
-    // Save for PASS/FAIL checker
-    lastPrediction = {
-      home, away, winner, drawFlag
+    // Save to history
+    const league = $('league').value || '';
+    const city = $('city').value || '';
+    savePredictionResult({
+      fixtureId: currentFixtureId || null,
+      date,
+      homeTeam: home,
+      awayTeam: away,
+      league,
+      city,
+      predictedWinner: winner,
+      predictedDraw: drawFlag,
+      scoreHint
+    });
+    renderHistoryTable();
+  }
+
+  // History functions
+  function loadHistoryFromStorage() {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      predictionHistory = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      predictionHistory = [];
+    }
+  }
+
+  function saveHistoryToStorage() {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(predictionHistory));
+    } catch (e) {}
+  }
+
+  function savePredictionResult(obj) {
+    if (!obj.homeTeam || !obj.awayTeam) return;
+
+    const record = {
+      id: Date.now(),
+      fixtureId: obj.fixtureId,
+      date: obj.date || '',
+      homeTeam: obj.homeTeam,
+      awayTeam: obj.awayTeam,
+      league: obj.league || '',
+      city: obj.city || '',
+      predictedWinner: obj.predictedWinner,
+      predictedDraw: obj.predictedDraw,
+      scoreHint: obj.scoreHint || '',
+      actualScore: null,
+      actualWinner: null,
+      passStatus: 'PENDING',      // PENDING / PASS / FAIL / NEUTRAL
+      fixtureStatus: null,
+      checked: false
     };
-    $('resultCheck').style.display = 'block';
-    $('passLine').textContent = '';
+
+    predictionHistory.unshift(record);
+    if (predictionHistory.length > 100) predictionHistory.pop();
+
+    saveHistoryToStorage();
   }
 
-  // PASS / FAIL CHECKER
-  function checkResult(){
-    if(!lastPrediction){
-      alert('Run prediction first.');
+  function renderHistoryTable() {
+    const body = document.getElementById('historyBody');
+    if (!body) return;
+    body.innerHTML = '';
+
+    if (!predictionHistory.length) {
+      body.innerHTML = '<tr><td colspan="5">No predictions saved yet.</td></tr>';
       return;
     }
-    const val = $('ftScore').value.trim();
-    const m = val.match(/^(\d+)\s*[-:]\s*(\d+)$/);
-    if(!m){
-      alert('Enter score like 2-1 or 0:0');
-      return;
-    }
-    const gh = parseInt(m[1],10);
-    const ga = parseInt(m[2],10);
 
-    let actualOutcome;
-    if(gh>ga) actualOutcome='home';
-    else if(ga>gh) actualOutcome='away';
-    else actualOutcome='draw';
+    predictionHistory.forEach(rec => {
+      const tr = document.createElement('tr');
+      const matchLabel = `${rec.homeTeam} vs ${rec.awayTeam}`;
+      const callText = rec.predictedWinner;
 
-    let pass=false;
-    let msg='';
+      let statusHtml = '';
+      if (rec.passStatus === 'PASS') {
+        statusHtml = '<span class="pass-text">PASS ✅</span>';
+      } else if (rec.passStatus === 'FAIL') {
+        statusHtml = '<span class="fail-text">FAIL ❌</span>';
+      } else if (rec.passStatus === 'NEUTRAL') {
+        statusHtml = '<span style="color:#6b7280;">Neutral</span>';
+      } else {
+        statusHtml = '<span style="color:#9ca3af;">Pending…</span>';
+      }
 
-    if(actualOutcome==='draw'){
-      pass = (lastPrediction.drawFlag==='YES' || lastPrediction.drawFlag==='MAYBE');
-      msg = pass
-        ? 'PASS – match ended draw, engine allowed draw side.'
-        : 'FAIL – match ended draw, engine said NO draw.';
-    }else if(actualOutcome==='home'){
-      pass = (lastPrediction.winner===lastPrediction.home);
-      msg = pass
-        ? 'PASS – home team win matched prediction.'
-        : 'FAIL – away/other result, prediction wrong.';
-    }else{
-      pass = (lastPrediction.winner===lastPrediction.away);
-      msg = pass
-        ? 'PASS – away team win matched prediction.'
-        : 'FAIL – home/other result, prediction wrong.';
-    }
-
-    $('passLine').innerHTML =
-      (pass
-        ? `<span class="pass-text">PASS ✅</span> – ${msg}`
-        : `<span class="fail-text">FAIL ❌</span> – ${msg}`
-      ) +
-      `<br>Final score: <b>${gh}-${ga}</b> · Engine winner: <b>${lastPrediction.winner}</b> · Draw flag: <b>${lastPrediction.drawFlag}</b>`;
+      tr.innerHTML = `
+        <td>${rec.date || '-'}</td>
+        <td>${matchLabel}</td>
+        <td>${callText}</td>
+        <td>${rec.actualScore || '-'}</td>
+        <td>${statusHtml}</td>
+      `;
+      body.appendChild(tr);
+    });
   }
 
-  // API-FOOTBALL
+  async function updateFinishedResultsFromApi() {
+    const apiKeyInput = document.getElementById('apiKey');
+    if (!apiKeyInput || !apiKeyInput.value) {
+      alert('First enter your API key in Step 1.');
+      return;
+    }
+    const apiKey = apiKeyInput.value.trim();
+
+    const pending = predictionHistory.filter(
+      r => r.fixtureId && !r.checked
+    );
+    if (!pending.length) {
+      alert('Nothing to update. All saved predictions already checked or have no fixture id.');
+      return;
+    }
+
+    for (const rec of pending) {
+      try {
+        const url = `https://v3.football.api-sports.io/fixtures?id=${rec.fixtureId}`;
+        const res = await fetch(url, {
+          headers: { 'x-apisports-key': apiKey }
+        });
+        const data = await res.json();
+        if (!data.response || !data.response.length) continue;
+
+        const fixt = data.response[0];
+        const statusShort = fixt.fixture.status.short;
+        const homeGoals = fixt.goals.home;
+        const awayGoals = fixt.goals.away;
+
+        if (statusShort === 'FT' || statusShort === 'AET' || statusShort === 'PEN') {
+          let actualWinner = 'DRAW';
+          if (homeGoals > awayGoals) actualWinner = 'HOME';
+          else if (awayGoals > homeGoals) actualWinner = 'AWAY';
+
+          let predictedKey = 'DRAW';
+          const txt = (rec.predictedWinner || '').toLowerCase();
+          if (txt.includes(rec.homeTeam.toLowerCase())) predictedKey = 'HOME';
+          else if (txt.includes(rec.awayTeam.toLowerCase())) predictedKey = 'AWAY';
+          else if (txt.includes('balanced') || txt.includes('50-50')) predictedKey = 'BALANCED';
+
+          let passStatus = 'FAIL';
+          if (predictedKey === 'BALANCED') {
+            passStatus = 'NEUTRAL';
+          } else if (predictedKey === actualWinner) {
+            passStatus = 'PASS';
+          }
+
+          rec.actualScore = `${homeGoals} – ${awayGoals}`;
+          rec.actualWinner = actualWinner;
+          rec.passStatus = passStatus;
+          rec.fixtureStatus = statusShort;
+          rec.checked = true;
+        }
+      } catch (e) {
+        console.error('History update error', e);
+      }
+    }
+
+    saveHistoryToStorage();
+    renderHistoryTable();
+    alert('Finished matches updated (where possible).');
+  }
+
   function loadMatches(){
     const key = $('apiKey').value.trim();
     const day = $('apiDay').value;
@@ -784,9 +911,7 @@
     $('matchTableBody').innerHTML = '';
 
     fetch(url,{
-      headers:{
-        'x-apisports-key': key
-      }
+      headers:{ 'x-apisports-key': key }
     })
     .then(r=>{
       if(!r.ok) throw new Error('HTTP '+r.status);
@@ -810,6 +935,7 @@
         if (Math.abs(ts-now) > 60*60*18) return;
 
         rows.push({
+          fixtureId: f.id,
           kick: f.date.slice(11,16) + ' UTC',
           home: teams.home.name,
           away: teams.away.name,
@@ -840,6 +966,7 @@
            <td>${row.city}</td>
            <td>${row.statusLong}</td>`;
         tr.addEventListener('click',()=>{
+          currentFixtureId = row.fixtureId;
           $('homeTeam').value = row.home;
           $('awayTeam').value = row.away;
           $('kickoffDate').value = row.dateISO;
@@ -850,11 +977,9 @@
           updatePakshaAndDayInfo();
           homeBirdLocked = null;
           awayBirdLocked = null;
-          lastPrediction = null;
           $('birdLockInfo').textContent = 'Paksha & team birds will be locked automatically from match date + team name (numerology → 27 nakshatra → bird).';
           $('waitLine').style.display = 'block';
           $('summaryBox').innerHTML = '';
-          $('resultCheck').style.display = 'none';
         });
         tbody.appendChild(tr);
       });
@@ -877,13 +1002,14 @@
       updatePakshaAndDayInfo();
       homeBirdLocked = null;
       awayBirdLocked = null;
-      lastPrediction = null;
       $('birdLockInfo').textContent = '';
       $('waitLine').style.display = 'block';
       $('summaryBox').innerHTML = '';
-      $('resultCheck').style.display = 'none';
     });
+    loadHistoryFromStorage();
+    renderHistoryTable();
   })();
 </script>
 </body>
 </html>
+```0
