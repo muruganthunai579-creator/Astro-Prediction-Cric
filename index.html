@@ -176,6 +176,11 @@
   .result-pass{color:#16a34a;font-weight:600;}
   .result-fail{color:#dc2626;font-weight:600;}
   .result-neutral{color:#6b7280;font-weight:600;}
+
+  .btn-danger{
+    background:#fee2e2;
+    color:#b91c1c;
+  }
 </style>
 </head>
 <body>
@@ -266,7 +271,7 @@
         </select>
       </div>
       <div style="flex:2;display:flex;align-items:flex-end;justify-content:flex-end;">
-        <!-- make auto button small (green circle earlier) -->
+        <!-- small blue auto button -->
         <button id="btnAutoBirds" class="btn-sub btn-small" style="max-width:240px;">
           Auto team birds from name (Lock)
         </button>
@@ -299,6 +304,9 @@
       <div>
         <button class="btn-sub btn-small" id="btnUpdateResults">Update finished results (API)</button>
       </div>
+      <div style="text-align:right;">
+        <button class="btn-danger btn-small" id="btnClearHistory">Clear all</button>
+      </div>
     </div>
     <table id="historyTable">
       <thead>
@@ -308,6 +316,7 @@
           <th>Your call</th>
           <th>Final score</th>
           <th>Status</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -319,9 +328,9 @@
 <script>
 /* ---------- globals ---------- */
 let API_KEY = '';
-let fixturesCache = [];           // last loaded fixtures from API
-let currentFixtureId = null;      // for prediction → history
-let selectedMatchLocal = null;    // {date, mins, dow, tz}
+let fixturesCache = [];
+let currentFixtureId = null;
+let selectedMatchLocal = null;
 let historyList = [];
 
 /* ---------- helpers ---------- */
@@ -360,7 +369,7 @@ function getVenueLocalParts(isoUtcString, timeZone){
   const day = get('day');
   const hour = get('hour');
   const minute = get('minute');
-  const weekday = get('weekday'); // Sun, Mon, ...
+  const weekday = get('weekday');
 
   const dateLocalStr = `${year}-${month}-${day}`;
   const minsFromMidnight = parseInt(hour,10)*60 + parseInt(minute,10);
@@ -370,7 +379,7 @@ function getVenueLocalParts(isoUtcString, timeZone){
   return {dateLocalStr, minsFromMidnight, dayOfWeek};
 }
 
-/* moon age → paksha (very simple) */
+/* moon age → paksha (simple) */
 function computeMoonAge(date){
   const year=date.getUTCFullYear();
   const month=date.getUTCMonth()+1;
@@ -392,7 +401,7 @@ function autoPakshaFromDateStr(dateStr){
   return age<14.765 ? 'shukla' : 'krishna';
 }
 
-/* Panchapakshi tables (same as before, rule lock) */
+/* Panchapakshi tables */
 const BIRDS=['Vulture','Owl','Crow','Cock','Peacock'];
 const FRIENDLY_BIRDS={
   Vulture:['Owl','Cock'],
@@ -451,7 +460,7 @@ const ACTIVITY_CYCLES={
 };
 const APAHARA_DURATIONS={Rule:48,Eat:30,Walk:36,Sleep:18,Die:12};
 
-/* numerology → 27 nak → bird (same fixed rule) */
+/* numerology → bird */
 const NAK_BIRDS=[
   'Peacock','Peacock','Peacock','Peacock','Peacock',
   'Cock','Cock','Cock','Cock','Cock','Cock',
@@ -490,7 +499,7 @@ function teamNameToBird(name,paksha){
   return {nakId,bird};
 }
 
-/* Panchapakshi time engine (uses venue day + time) */
+/* Panchapakshi time engine */
 function getMainYamaContext(bird,timeMins,dayIdx,pakshaType){
   const dayStart=360, nightStart=1080, yamaDur=144;
   let isNight=false, minsSinceStart=0, cycleStart=dayStart;
@@ -584,6 +593,8 @@ function loadHistory(){
   try{
     const raw=localStorage.getItem('astroFootballHistory');
     historyList = raw ? JSON.parse(raw) : [];
+    // remove old broken "undefined" rows
+    historyList = historyList.filter(h=>h && h.match && h.match!=='undefined');
   }catch(e){historyList=[];}
   renderHistory();
 }
@@ -592,10 +603,20 @@ function saveHistory(){
     localStorage.setItem('astroFootballHistory',JSON.stringify(historyList));
   }catch(e){}
 }
+function deleteHistoryRow(idx){
+  historyList.splice(idx,1);
+  saveHistory();
+  renderHistory();
+}
+function clearHistory(){
+  historyList=[];
+  saveHistory();
+  renderHistory();
+}
 function renderHistory(){
   const tbody=$('historyTable').querySelector('tbody');
   tbody.innerHTML='';
-  historyList.forEach(h=>{
+  historyList.forEach((h,idx)=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td>${h.date}</td>
@@ -606,6 +627,7 @@ function renderHistory(){
         h.status==='Pass'?'result-pass':
         h.status==='Fail'?'result-fail':'result-neutral'
       }">${h.status}</td>
+      <td><button class="btn-small btn-danger" onclick="deleteHistoryRow(${idx})">X</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -622,9 +644,7 @@ async function loadMatches(){
   const url=`https://v3.football.api-sports.io/fixtures?date=${dayStr}&timezone=UTC`;
   try{
     const res=await fetch(url,{
-      headers:{
-        'x-apisports-key':API_KEY
-      }
+      headers:{'x-apisports-key':API_KEY}
     });
     const data=await res.json();
     if(data.errors && Object.keys(data.errors).length){
@@ -639,12 +659,17 @@ async function loadMatches(){
       const league=fx.league;
       const home=fx.teams.home;
       const away=fx.teams.away;
-      const local = getVenueLocalParts(fixture.date, fixture.timezone);
-      const koLabel = `${local.dateLocalStr} ${minsToTime(local.minsFromMidnight)} (${fixture.timezone})`;
+
       const statusShort = fixture.status.short; // NS, 1H, FT...
       const isLive = ['1H','2H','ET','P'].includes(statusShort);
       const isFinished = ['FT','AET','PEN'].includes(statusShort);
-      const statusText = isLive ? 'LIVE' : isFinished ? 'Finished' : 'Upcoming';
+
+      // *** Only LIVE + UPCOMING (skip finished) ***
+      if(isFinished) return;
+
+      const local = getVenueLocalParts(fixture.date, fixture.timezone);
+      const koLabel = `${local.dateLocalStr} ${minsToTime(local.minsFromMidnight)} (${fixture.timezone})`;
+      const statusText = isLive ? 'LIVE' : 'Upcoming';
 
       const tr=document.createElement('tr');
       tr.className='clickable';
@@ -659,7 +684,7 @@ async function loadMatches(){
       tr.addEventListener('click',()=>fillFromFixture(fx,local));
       tbody.appendChild(tr);
     });
-    $('apiInfo').textContent='API call success. Click any row to send match into Step 2.';
+    $('apiInfo').textContent='API call success. Showing LIVE + UPCOMING only. Click a row to send match into Step 2.';
   }catch(e){
     console.error(e);
     $('apiInfo').textContent='Network / API error. Check internet + key + quota.';
@@ -762,7 +787,6 @@ function runPrediction(){
     return;
   }
 
-  // activity at kickoff
   const hStatus=getExactStatusAtTime(homeBird,tMins,dayIdx,pak);
   const aStatus=getExactStatusAtTime(awayBird,tMins,dayIdx,pak);
   const hScore=hStatus.score;
@@ -771,7 +795,6 @@ function runPrediction(){
   let pHome=(hScore/total)*100;
   let pAway=100-pHome;
 
-  // clamp 35–65 to avoid crazy %
   const clamp=(p)=>p<35?35:p>65?65:p;
   pHome=clamp(pHome);
   pAway=100-pHome;
@@ -780,7 +803,6 @@ function runPrediction(){
   const friendlyR=FRIENDLY_BIRDS[ruling]||[];
   const enemyR=UNFRIENDLY_BIRDS[ruling]||[];
 
-  // bird relation bonus (small)
   function birdBonus(b){
     if(b===ruling) return 6;
     if(friendlyR.includes(b)) return 3;
@@ -804,29 +826,33 @@ function runPrediction(){
     `<span class="tag tag-flow">Match flow (Panchapakshi)</span>`+barHtml+
     `<div class="summary-line">Home activity: <b>${hStatus.activity}</b> · Away activity: <b>${aStatus.activity}</b></div>`;
 
-  // Draw logic
+  /* DRAW RULE – stronger:
+     - if % difference <= 8  OR
+     - same activity  OR
+     - both very weak (Sleep/Die) */
   let drawYes=false;
   const diff=Math.abs(pHome-pAway);
-  if(diff<=4) drawYes=true;
+  if(diff<=8) drawYes=true;
+  if(hStatus.activity===aStatus.activity) drawYes=true;
+  const weakActs=['Sleep','Die'];
+  if(weakActs.includes(hStatus.activity) && weakActs.includes(aStatus.activity)) drawYes=true;
+
   const drawText = drawYes
-    ? 'YES – energies nearly equal.'
+    ? 'YES – energies nearly equal or both weak.'
     : 'NO – one bird clearly stronger.';
   $('drawLine').innerHTML =
     `<span class="tag tag-draw">Draw?</span> ${drawText}`;
 
-  // score hint using activity rule weights (100/80/50/30/0)
-  const maxSide = pHome>pAway?'home':'away';
   let scoreHint='';
   if(drawYes){
     scoreHint='1–1 or 2–2 (draw side).';
-  }else if(maxSide==='home'){
+  }else if(pHome>pAway){
     scoreHint='Home win: 1–0 or 2–1.';
   }else{
     scoreHint='Away win: 0–2 or 1–3.';
   }
   $('scoreHintLine').innerHTML =
-    `<span class="tag tag-score">Correct score hint</span> ${scoreHint}<br>`+
-    `Rule = 100 · Eat = 80 · Walk = 50 · Sleep = 30 · Die = 0 (engine lock).`;
+    `<span class="tag tag-score">Correct score hint</span> ${scoreHint}`;
 
   let overallWinner='Balanced / 50-50';
   if(pHome>pAway+1)overallWinner=home;
@@ -842,8 +868,12 @@ function runPrediction(){
     `Final call: <span class="winner-name">${overallWinner}</span>`+
     (drawYes ? ' (draw side strong)' : '');
 
-  // add to history
-  const yourCall = drawYes ? (overallWinner==='Balanced / 50-50'?'Balanced / 50-50':overallWinner+' + Draw side') : overallWinner;
+  const yourCall = drawYes
+    ? (overallWinner==='Balanced / 50-50'
+        ? 'Balanced / 50-50 (Draw lean)'
+        : overallWinner+' + Draw side')
+    : overallWinner;
+
   historyList.push({
     date:dateStr,
     match:`${home} vs ${away}`,
@@ -875,13 +905,12 @@ async function updateFinishedResults(){
       if(homeG===null || awayG===null) continue;
       h.finalScore=`${homeG} – ${awayG}`;
       const isDraw = homeG===awayG;
-      const call=h.call;
-      const pickedHome = call.includes(' vs ') ? false : call.startsWith(fx.teams.home.name);
+      const call=h.call||'';
       let result='Neutral';
       if(isDraw && call.toLowerCase().includes('draw')) result='Pass';
       else if(!isDraw && call.includes(fx.teams.home.name) && homeG>awayG) result='Pass';
       else if(!isDraw && call.includes(fx.teams.away.name) && awayG>homeG) result='Pass';
-      else if(call==='Balanced / 50-50') result='Neutral';
+      else if(call.startsWith('Balanced / 50-50')) result='Neutral';
       else result='Fail';
       h.status=result;
     }catch(e){
@@ -907,9 +936,12 @@ async function updateFinishedResults(){
     updateDayBirdLine();
   });
   $('btnUpdateResults').addEventListener('click',updateFinishedResults);
+  $('btnClearHistory').addEventListener('click',clearHistory);
+  window.deleteHistoryRow = deleteHistoryRow; // for onclick
   loadHistory();
   updateDayBirdLine();
 })();
 </script>
 </body>
 </html>
+```0
