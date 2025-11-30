@@ -163,6 +163,7 @@
     .good-text{color:#16a34a;font-weight:600;}
     .pass-text{color:#16a34a;font-weight:700;}
     .fail-text{color:#dc2626;font-weight:700;}
+    .balanced-text{color:#0369a1;font-weight:700;}
 
     .bar-wrap{
       width:100%;
@@ -323,13 +324,13 @@
     <div id="summaryBox" class="tiny"></div>
   </div>
 
-  <!-- TIMELINE (optional – not used now but kept for layout) -->
+  <!-- TIMELINE CARD (hidden for now) -->
   <div id="timelineCard" class="card" style="display:none;">
     <div class="title-sm">Match Flow – Panchapakshi Environment (IST)</div>
     <div id="timelineContainer"></div>
   </div>
 
-  <!-- STEP 4 · PREDICTION HISTORY (PASS / FAIL) – ALWAYS LAST -->
+  <!-- STEP 4 · PREDICTION HISTORY -->
   <div class="card" id="historyCard">
     <div class="title-sm">Prediction History – Pass / Fail</div>
 
@@ -354,9 +355,7 @@
           <th>Status</th>
         </tr>
       </thead>
-      <tbody id="historyBody">
-        <!-- filled by JS -->
-      </tbody>
+      <tbody id="historyBody"></tbody>
     </table>
   </div>
 </div>
@@ -369,7 +368,7 @@
     return d.toISOString().slice(0,10);
   }
 
-  // Prediction history
+  // History
   const HISTORY_KEY = 'astroFootballHistory';
   let predictionHistory = [];
   let currentFixtureId = null;
@@ -438,7 +437,7 @@
     krishna: deriveRulingBirds('krishna')
   };
 
-  // Rule lock scores
+  // Rule lock scores (from you)
   const ACTIVITY_SCORES = {
     Rule:100,
     Eat:80,
@@ -447,7 +446,7 @@
     Die:0
   };
 
-  // Numerology → bird
+  // Numerology table
   const CHALDEAN = {
     1:['A','I','J','Q','Y'],
     2:['B','K','R'],
@@ -639,22 +638,26 @@
       awayPct -= 0.5;
     }
 
-    const diff = homePct - awayPct;
+    let diff = homePct - awayPct;
 
-    // Draw engine (activity + bird)
+    // DRAW ENGINE – more aggressive for Die/Eat etc
     const homeScoreAct = ACTIVITY_SCORES[env.homeAct];
     const awayScoreAct = ACTIVITY_SCORES[env.awayAct];
     const actDiff = Math.abs(homeScoreAct - awayScoreAct);
     const sameBird = homeBirdLocked === awayBirdLocked;
     const sameActivity = env.homeAct === env.awayAct;
+    const hasDieAndEat =
+      (env.homeAct === 'Die' && env.awayAct === 'Eat') ||
+      (env.homeAct === 'Eat' && env.awayAct === 'Die');
 
-    let drawFlag = 'NO';  // YES / MAYBE / NO
-    if (sameBird || sameActivity || actDiff <= 20) {
+    let drawFlag = 'NO';
+    if (sameBird || sameActivity) {
       drawFlag = 'YES';
-    } else if (actDiff <= 30 || Math.abs(diff) <= 8) {
+    } else if (hasDieAndEat) {
+      // special chaos combo → draw side strong
       drawFlag = 'MAYBE';
-    } else {
-      drawFlag = 'NO';
+    } else if (actDiff <= 20 || Math.abs(diff) <= 8) {
+      drawFlag = 'MAYBE';
     }
 
     let drawText;
@@ -668,6 +671,13 @@
 
     const drawLikely = drawFlag !== 'NO';
 
+    // If draw likely → show 50-50 bar & balanced final call
+    if (drawLikely) {
+      homePct = 50;
+      awayPct = 50;
+      diff = 0;
+    }
+
     const envBar = makeBar(
       homePct,
       awayPct,
@@ -676,8 +686,6 @@
     );
 
     let scoreHint = '';
-    const strongSidePct = diff >= 0 ? homePct : awayPct;
-
     if (drawLikely) {
       if (env.home < 55 && env.away < 55) {
         scoreHint = '0–0 or 1–1 (low activity draw).';
@@ -685,6 +693,7 @@
         scoreHint = '1–1 or 2–2 (open draw).';
       }
     } else {
+      const strongSidePct = diff >= 0 ? homePct : awayPct;
       if (strongSidePct >= 65) {
         scoreHint = diff > 0 ? 'Home win: 2–0 or 3–1.' : 'Away win: 0–2 or 1–3.';
       } else if (strongSidePct >= 58) {
@@ -694,16 +703,21 @@
       }
     }
 
-    const winner = diff >= 0 ? home : away;
-
-    let homeClass = 'home-text';
-    let awayClass = 'away-text';
-    if (winner === home){
-      homeClass = 'excellent-text';
-      awayClass = 'weak-text';
+    // Winner / balanced text
+    let homeClass, awayClass, finalCallLabel, overallLabel;
+    if (drawLikely) {
+      homeClass = 'home-text';
+      awayClass = 'away-text';
+      finalCallLabel = 'Balanced / 50-50';
+      overallLabel  = '<span class="balanced-text">Balanced 50-50 side</span>';
     } else {
-      homeClass = 'weak-text';
-      awayClass = 'excellent-text';
+      const winner = diff >= 0 ? home : away;
+      homeClass = winner === home ? 'excellent-text' : 'weak-text';
+      awayClass = winner === away ? 'excellent-text' : 'weak-text';
+      finalCallLabel = winner;
+      overallLabel =
+        `<span class="${homeClass}">${home}</span> ${homePct.toFixed(1)}% · `+
+        `<span class="${awayClass}">${away}</span> ${awayPct.toFixed(1)}%`;
     }
 
     $('waitLine').style.display = 'none';
@@ -728,9 +742,8 @@
        </div>
        <div class="summary-line tiny">
          <span class="tag tag-overall">Overall winner</span>
-         <span class="${homeClass}">${home}</span> ${homePct.toFixed(1)}% ·
-         <span class="${awayClass}">${away}</span> ${awayPct.toFixed(1)}%<br>
-         Final call: <span class="excellent-text">${winner}</span>
+         ${overallLabel}<br>
+         Final call: <span class="${drawLikely ? 'balanced-text' : 'excellent-text'}">${finalCallLabel}</span>
        </div>`;
 
     // Save to history
@@ -743,14 +756,14 @@
       awayTeam: away,
       league,
       city,
-      predictedWinner: winner,
+      predictedWinner: finalCallLabel,
       predictedDraw: drawFlag,
       scoreHint
     });
     renderHistoryTable();
   }
 
-  // History functions
+  // History helpers
   function loadHistoryFromStorage() {
     try {
       const raw = localStorage.getItem(HISTORY_KEY);
@@ -782,7 +795,7 @@
       scoreHint: obj.scoreHint || '',
       actualScore: null,
       actualWinner: null,
-      passStatus: 'PENDING',      // PENDING / PASS / FAIL / NEUTRAL
+      passStatus: 'PENDING',
       fixtureStatus: null,
       checked: false
     };
@@ -869,12 +882,15 @@
           const txt = (rec.predictedWinner || '').toLowerCase();
           if (txt.includes(rec.homeTeam.toLowerCase())) predictedKey = 'HOME';
           else if (txt.includes(rec.awayTeam.toLowerCase())) predictedKey = 'AWAY';
-          else if (txt.includes('balanced') || txt.includes('50-50')) predictedKey = 'BALANCED';
+          else if (txt.includes('balanced')) predictedKey = 'BALANCED';
 
           let passStatus = 'FAIL';
           if (predictedKey === 'BALANCED') {
             passStatus = 'NEUTRAL';
           } else if (predictedKey === actualWinner) {
+            passStatus = 'PASS';
+          } else if (actualWinner === 'DRAW' && rec.predictedDraw !== 'NO') {
+            // draw flagged yes/maybe
             passStatus = 'PASS';
           }
 
@@ -1012,4 +1028,3 @@
 </script>
 </body>
 </html>
-```0
