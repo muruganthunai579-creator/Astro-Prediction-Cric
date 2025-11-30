@@ -328,13 +328,12 @@
   // ---------- Panchapakshi tables ----------
   const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
 
-  // 27 nakshatra -> bird (default table)
   const NAKSHATRA_BIRDS = [
-    'Peacock','Peacock','Peacock','Peacock','Peacock', // 1-5
-    'Cock','Cock','Cock','Cock','Cock','Cock',        // 6-11
-    'Crow','Crow','Crow','Crow','Crow',               // 12-16
-    'Owl','Owl','Owl','Owl','Owl',                    // 17-21
-    'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture' // 22-27
+    'Peacock','Peacock','Peacock','Peacock','Peacock',
+    'Cock','Cock','Cock','Cock','Cock','Cock',
+    'Crow','Crow','Crow','Crow','Crow',
+    'Owl','Owl','Owl','Owl','Owl',
+    'Vulture','Vulture','Vulture','Vulture','Vulture','Vulture'
   ];
 
   const FRIENDLY_BIRDS = {
@@ -352,10 +351,8 @@
     Peacock: ['Vulture','Cock']
   };
 
-  // Day ↔ planet
   const DAY_PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
 
-  // bird ↔ planet by paksha
   const BIRD_PLANETS = {
     shukla: {
       Vulture: ['Jupiter','Saturn'],
@@ -392,7 +389,6 @@
     krishna: deriveRulingBirds('krishna')
   };
 
-  // activity strengths (Rule/Eat/Walk/Sleep/Die)
   const ACTIVITY_SCORES = {
     Rule:100,
     Eat:80,
@@ -402,7 +398,6 @@
   };
 
   // ---------- numerology → 27 nakshatra → bird ----------
-  // Chaldean map
   const CHALDEAN = {
     1:['A','I','J','Q','Y'],
     2:['B','K','R'],
@@ -429,13 +424,12 @@
       for(const d of String(sum)) s+=Number(d);
       sum=s;
     }
-    return sum; // 0–9
+    return sum;
   }
 
   function birdFromName(name){
     const n = nameNumerology(name);
     if(!n) return 'Vulture';
-    // stretch 1–9 into 0–26
     const idx = ((n-1)*3) % 27;
     return NAKSHATRA_BIRDS[idx];
   }
@@ -468,7 +462,7 @@
     const paksha = age < 14.765 ? 'shukla' : 'krishna';
     $('paksha').value = paksha;
 
-    const dayIdx = d.getDay(); // 0=Sun
+    const dayIdx = d.getDay();
     const dow = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dayIdx];
     const dayBird = RULING_BIRDS[paksha][dayIdx];
     const friendly = FRIENDLY_BIRDS[dayBird] || [];
@@ -504,7 +498,7 @@
       `<span class="tag tag-flow">Auto team birds (locked)</span>`+
       `<span class="home-text">${home}</span> → <b>${hb}</b> · `+
       `<span class="away-text">${away}</span> → <b>${ab}</b><br>`+
-      `Rule lock = pure Panchapakshi prediction only (no manual editing).`;
+      `Name → numerology → 27 nakshatra → bird. Manual change not allowed 🔒`;
   }
 
   // ---------- Environment from birds + day bird ----------
@@ -535,9 +529,8 @@
     };
   }
 
-  // ---------- Nice bar ----------
   function makeBar(pHome, pAway, homeLabel, awayLabel){
-    const left = pHome; // mid-line at home%
+    const left = pHome;
     return `
       <div class="bar-wrap">
         <div class="bar-midline" style="left:${left}%;"></div>
@@ -562,7 +555,6 @@
       return;
     }
 
-    // auto lock if not done
     if (!homeBirdLocked || !awayBirdLocked) {
       autoTeamBirds();
       if(!homeBirdLocked || !awayBirdLocked) return;
@@ -595,6 +587,13 @@
     const clamp = p => p>70 ? 70 : (p<30 ? 30 : p);
     homePct = clamp(homePct);
     awayPct = 100 - homePct;
+
+    // tie-breaker: exact 50-50 avoid pannalaam – home ku half point push
+    if (homePct === awayPct){
+      homePct += 0.5;
+      awayPct -= 0.5;
+    }
+
     const diff = homePct - awayPct;
 
     const sameBird = homeBirdLocked === awayBirdLocked;
@@ -609,18 +608,17 @@
       drawText = 'NO – one bird clearly stronger.';
     }
 
-    let winner = 'Balanced / 50-50';
-    if (diff > 2) winner = home;
-    else if (diff < -2) winner = away;
+    // *** winner always some team – no more Balanced / 50-50 ***
+    const winner = diff >= 0 ? home : away;
 
     let scoreHint = '';
     const strongSidePct = diff >= 0 ? homePct : awayPct;
 
     if (drawLikely) {
       if (env.home < 55 && env.away < 55) {
-        scoreHint = '0–0 or 1–1 (low activity draw).';
+        scoreHint = '0–0 or 1–1 (low activity draw side).';
       } else {
-        scoreHint = '1–1 or 2–2 (open draw).';
+        scoreHint = '1–1 or 2–2 (open draw side).';
       }
     } else {
       if (strongSidePct >= 65) {
@@ -644,7 +642,7 @@
     if (winner === home){
       homeClass = 'excellent-text';
       awayClass = 'weak-text';
-    } else if (winner === away){
+    } else {
       homeClass = 'weak-text';
       awayClass = 'excellent-text';
     }
@@ -666,9 +664,8 @@
          <b>${drawText}</b>
        </div>
        <div class="summary-line tiny">
-         <span class="tag tag-score">Correct score (Rule/Eat/Walk/Sleep/Die)</span>
-         <b>${scoreHint}</b><br>
-         Rule = 100 · Eat = 80 · Walk = 50 · Sleep = 30 · Die = 0 (locked weights).
+         <span class="tag tag-score">Correct score</span>
+         <b>${scoreHint}</b>
        </div>
        <div class="summary-line tiny">
          <span class="tag tag-overall">Overall winner</span>
@@ -714,13 +711,11 @@
         const f = item.fixture;
         const l = item.league;
         const teams = item.teams;
-        const status = f.status.short; // e.g. NS, 1H, 2H, FT
-        // skip finished / cancelled etc
+        const status = f.status.short;
         const finishedCodes = ['FT','AET','PEN','CANC','PST','ABD','AWD','WO'];
         if(finishedCodes.includes(status)) return;
 
-        const ts = f.timestamp; // unix
-        // safety: only today +/- few hours
+        const ts = f.timestamp;
         if (Math.abs(ts-now) > 60*60*18) return;
 
         rows.push({
@@ -754,7 +749,6 @@
            <td>${row.city}</td>
            <td>${row.statusLong}</td>`;
         tr.addEventListener('click',()=>{
-          // send into Step 2
           $('homeTeam').value = row.home;
           $('awayTeam').value = row.away;
           $('kickoffDate').value = row.dateISO;
