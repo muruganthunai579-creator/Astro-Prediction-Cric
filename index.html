@@ -99,6 +99,15 @@
       background:linear-gradient(90deg,#16a34a,#22c55e);
       box-shadow:0 8px 18px rgba(34,197,94,.45);
     }
+    /* SMALL button (green circle mark fix) */
+    .btn-auto{
+      width:auto;
+      padding:8px 14px;
+      font-size:10px;
+      align-self:flex-end;
+      white-space:nowrap;
+    }
+
     button:active{transform:scale(.97);}
 
     table{
@@ -154,6 +163,8 @@
     .excellent-text{color:#15803d;font-weight:700;}
     .weak-text{color:#dc2626;font-weight:600;}
     .good-text{color:#16a34a;font-weight:600;}
+    .pass-text{color:#16a34a;font-weight:700;}
+    .fail-text{color:#dc2626;font-weight:700;}
 
     .bar-wrap{
       width:100%;
@@ -293,9 +304,8 @@
           <option value="krishna">Krishna</option>
         </select>
       </div>
-      <div style="flex:1.4;">
-        <label>&nbsp;</label>
-        <button class="btn-dark" onclick="autoTeamBirds()">Auto team birds from name (LOCK)</button>
+      <div style="flex:1.4;display:flex;justify-content:flex-end;align-items:flex-end;">
+        <button class="btn-dark btn-auto" onclick="autoTeamBirds()">Auto team birds from name (LOCK)</button>
       </div>
     </div>
 
@@ -313,11 +323,25 @@
     </div>
     <div id="waitLine" class="tiny">Waiting for match input…</div>
     <div id="summaryBox" class="tiny"></div>
+
+    <!-- PASS / FAIL CHECK (blue mark) -->
+    <div id="resultCheck" class="tiny" style="margin-top:10px;display:none;">
+      <span class="tag tag-info">Result check</span>
+      <div class="row">
+        <div>
+          <label>Final score (FT)</label>
+          <input id="ftScore" placeholder="Ex: 2-1" />
+        </div>
+        <div style="flex:0 0 auto;display:flex;align-items:flex-end;justify-content:flex-end;">
+          <button class="btn-dark btn-auto" onclick="checkResult()">Check Pass / Fail</button>
+        </div>
+      </div>
+      <div id="passLine" class="tiny"></div>
+    </div>
   </div>
 </div>
 
 <script>
-  // ---------- small helpers ----------
   const $ = id => document.getElementById(id);
 
   function todayISO(){
@@ -325,7 +349,6 @@
     return d.toISOString().slice(0,10);
   }
 
-  // ---------- Panchapakshi tables ----------
   const BIRDS = ['Vulture','Owl','Crow','Cock','Peacock'];
 
   const NAKSHATRA_BIRDS = [
@@ -389,6 +412,7 @@
     krishna: deriveRulingBirds('krishna')
   };
 
+  // ACTIVITY SCORE RULE (100 / 80 / 50 / 30 / 0)
   const ACTIVITY_SCORES = {
     Rule:100,
     Eat:80,
@@ -397,7 +421,7 @@
     Die:0
   };
 
-  // ---------- numerology → 27 nakshatra → bird ----------
+  // Numerology for team name → 27 nakshatra → bird
   const CHALDEAN = {
     1:['A','I','J','Q','Y'],
     2:['B','K','R'],
@@ -434,7 +458,6 @@
     return NAKSHATRA_BIRDS[idx];
   }
 
-  // ---------- Moon age → Paksha ----------
   function computeMoonAge(date){
     const year=date.getUTCFullYear();
     const month=date.getUTCMonth()+1;
@@ -476,9 +499,9 @@
       `Enemy: <span class="weak-text">${enemy.join(', ')||'-'}</span>`;
   }
 
-  // ---------- AUTO team birds (LOCK) ----------
   let homeBirdLocked = null;
   let awayBirdLocked = null;
+  let lastPrediction = null;
 
   function autoTeamBirds(){
     const home = $('homeTeam').value.trim();
@@ -501,7 +524,6 @@
       `Name → numerology → 27 nakshatra → bird. Manual change not allowed 🔒`;
   }
 
-  // ---------- Environment from birds + day bird ----------
   function calcEnvPercent(homeBird, awayBird, dateStr, timeStr, paksha){
     const d = new Date(dateStr + 'T12:00:00');
     const dayIdx = d.getDay();
@@ -543,7 +565,6 @@
       </div>`;
   }
 
-  // ---------- Step 3 : prediction ----------
   function runPrediction(){
     const home = $('homeTeam').value.trim();
     const away = $('awayTeam').value.trim();
@@ -588,7 +609,7 @@
     homePct = clamp(homePct);
     awayPct = 100 - homePct;
 
-    // tie-breaker: exact 50-50 avoid pannalaam – home ku half point push
+    // avoid exact 50-50
     if (homePct === awayPct){
       homePct += 0.5;
       awayPct -= 0.5;
@@ -596,20 +617,39 @@
 
     const diff = homePct - awayPct;
 
+    // ---- DRAW ENGINE (red circle) ----
+    const homeScoreAct = ACTIVITY_SCORES[env.homeAct];
+    const awayScoreAct = ACTIVITY_SCORES[env.awayAct];
+    const actDiff = Math.abs(homeScoreAct - awayScoreAct);
     const sameBird = homeBirdLocked === awayBirdLocked;
-    const drawLikely = sameBird || Math.abs(diff) <= 6;
+    const sameActivity = env.homeAct === env.awayAct;
+
+    let drawFlag = 'NO';  // 'YES' | 'MAYBE' | 'NO'
+    if (sameBird || sameActivity || actDiff <= 20) {
+      drawFlag = 'YES';
+    } else if (actDiff <= 30 || Math.abs(diff) <= 8) {
+      drawFlag = 'MAYBE';
+    } else {
+      drawFlag = 'NO';
+    }
 
     let drawText;
-    if (sameBird && Math.abs(diff) <= 8) {
-      drawText = 'YES – same team bird / equal activity.';
-    } else if (drawLikely) {
-      drawText = 'YES / MAYBE – powers almost equal.';
+    if (drawFlag === 'YES') {
+      drawText = 'YES – birds / activity nearly equal.';
+    } else if (drawFlag === 'MAYBE') {
+      drawText = 'YES / MAYBE – powers close, draw possible.';
     } else {
       drawText = 'NO – one bird clearly stronger.';
     }
 
-    // *** winner always some team – no more Balanced / 50-50 ***
-    const winner = diff >= 0 ? home : away;
+    const drawLikely = drawFlag !== 'NO';
+
+    const envBar = makeBar(
+      homePct,
+      awayPct,
+      `${home} ${homePct.toFixed(1)}%`,
+      `${away} ${awayPct.toFixed(1)}%`
+    );
 
     let scoreHint = '';
     const strongSidePct = diff >= 0 ? homePct : awayPct;
@@ -630,12 +670,8 @@
       }
     }
 
-    const envBar = makeBar(
-      homePct,
-      awayPct,
-      `${home} ${homePct.toFixed(1)}%`,
-      `${away} ${awayPct.toFixed(1)}%`
-    );
+    // winner (no more Balanced/50-50)
+    const winner = diff >= 0 ? home : away;
 
     let homeClass = 'home-text';
     let awayClass = 'away-text';
@@ -673,9 +709,64 @@
          <span class="${awayClass}">${away}</span> ${awayPct.toFixed(1)}%<br>
          Final call: <span class="excellent-text">${winner}</span>
        </div>`;
+
+    // Save for PASS/FAIL checker
+    lastPrediction = {
+      home, away, winner, drawFlag
+    };
+    $('resultCheck').style.display = 'block';
+    $('passLine').textContent = '';
   }
 
-  // ---------- Step 1 : API-Football fetch ----------
+  // PASS / FAIL CHECKER
+  function checkResult(){
+    if(!lastPrediction){
+      alert('Run prediction first.');
+      return;
+    }
+    const val = $('ftScore').value.trim();
+    const m = val.match(/^(\d+)\s*[-:]\s*(\d+)$/);
+    if(!m){
+      alert('Enter score like 2-1 or 0:0');
+      return;
+    }
+    const gh = parseInt(m[1],10);
+    const ga = parseInt(m[2],10);
+
+    let actualOutcome;
+    if(gh>ga) actualOutcome='home';
+    else if(ga>gh) actualOutcome='away';
+    else actualOutcome='draw';
+
+    let pass=false;
+    let msg='';
+
+    if(actualOutcome==='draw'){
+      pass = (lastPrediction.drawFlag==='YES' || lastPrediction.drawFlag==='MAYBE');
+      msg = pass
+        ? 'PASS – match ended draw, engine allowed draw side.'
+        : 'FAIL – match ended draw, engine said NO draw.';
+    }else if(actualOutcome==='home'){
+      pass = (lastPrediction.winner===lastPrediction.home);
+      msg = pass
+        ? 'PASS – home team win matched prediction.'
+        : 'FAIL – away/other result, prediction wrong.';
+    }else{
+      pass = (lastPrediction.winner===lastPrediction.away);
+      msg = pass
+        ? 'PASS – away team win matched prediction.'
+        : 'FAIL – home/other result, prediction wrong.';
+    }
+
+    $('passLine').innerHTML =
+      (pass
+        ? `<span class="pass-text">PASS ✅</span> – ${msg}`
+        : `<span class="fail-text">FAIL ❌</span> – ${msg}`
+      ) +
+      `<br>Final score: <b>${gh}-${ga}</b> · Engine winner: <b>${lastPrediction.winner}</b> · Draw flag: <b>${lastPrediction.drawFlag}</b>`;
+  }
+
+  // API-FOOTBALL
   function loadMatches(){
     const key = $('apiKey').value.trim();
     const day = $('apiDay').value;
@@ -759,9 +850,11 @@
           updatePakshaAndDayInfo();
           homeBirdLocked = null;
           awayBirdLocked = null;
+          lastPrediction = null;
           $('birdLockInfo').textContent = 'Paksha & team birds will be locked automatically from match date + team name (numerology → 27 nakshatra → bird).';
           $('waitLine').style.display = 'block';
           $('summaryBox').innerHTML = '';
+          $('resultCheck').style.display = 'none';
         });
         tbody.appendChild(tr);
       });
@@ -776,7 +869,6 @@
     });
   }
 
-  // ---------- init ----------
   (function init(){
     $('apiDay').value = todayISO();
     $('kickoffDate').value = todayISO();
@@ -785,9 +877,11 @@
       updatePakshaAndDayInfo();
       homeBirdLocked = null;
       awayBirdLocked = null;
+      lastPrediction = null;
       $('birdLockInfo').textContent = '';
       $('waitLine').style.display = 'block';
       $('summaryBox').innerHTML = '';
+      $('resultCheck').style.display = 'none';
     });
   })();
 </script>
